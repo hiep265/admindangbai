@@ -37,6 +37,12 @@ export interface UserSubscription {
   totalPaid: number;
   createdAt?: Date;
   updatedAt?: Date;
+  // Thông tin bổ sung từ API
+  userName?: string;        // Tên người dùng
+  userEmail?: string;       // Email người dùng
+  planName?: string;        // Tên gói đăng ký
+  planPrice?: number;       // Giá gói đăng ký
+  planPeriod?: string;      // Chu kỳ gói đăng ký
 }
 
 // Subscription usage tracking
@@ -90,4 +96,4 @@ export interface UserWithSubscription {
   canPost: boolean;
   remainingPosts: number;
   remainingStorage: number;
-} 
+}

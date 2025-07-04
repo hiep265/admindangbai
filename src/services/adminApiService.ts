@@ -9,7 +9,7 @@ import {
 } from '../types/admin';
 
 // const BASE_URL = 'http://localhost:8000/api/v1';
-const PUBLIC_URL = "https://67b8-171-224-181-76.ngrok-free.app/v1"
+const PUBLIC_URL = "http://localhost:8000/api/v1"
 
 class AdminApiService {
   private async makeRequest(endpoint: string, options: RequestInit = {}) {
@@ -37,6 +37,11 @@ class AdminApiService {
       
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    // Kiểm tra nếu status code là 204 NO_CONTENT thì không parse JSON
+    if (response.status === 204) {
+      return null;
     }
 
     const data = await response.json();
@@ -76,36 +81,38 @@ class AdminApiService {
 
     const response = await this.makeRequest(`/admin/users?${params.toString()}`);
     
-    const backendData = response.data;
-    
-    // Transform backend users to frontend format
-    const users: AdminUser[] = backendData.users.map((user: any) => ({
+    // The backend now returns a list of users directly
+    const users: AdminUser[] = response.map((user: any) => ({
       id: user.id,
       email: user.email,
-      username: user.email.split('@')[0], // Extract username from email
+      username: user.email.split('@')[0],
       fullName: user.full_name,
       role: user.role,
       status: user.is_active ? 'active' : 'suspended',
       createdAt: new Date(user.created_at),
-      lastLoginAt: new Date(user.updated_at), // Using updated_at as last login
-      totalPosts: user.total_posts,
-      connectedAccounts: user.connected_accounts,
+      lastLoginAt: new Date(user.updated_at),
+      totalPosts: user.total_posts || 0,
+      connectedAccounts: user.connected_accounts || 0,
       subscription: {
-        plan: 'free', // Default plan, can be extended later
+        plan: 'free',
         features: ['basic_posting']
       }
     }));
 
     return {
       users,
-      pagination: backendData.pagination
+      pagination: {
+        page: pagination.page || 1,
+        limit: pagination.limit || 10,
+        total: users.length, // Assuming the API returns all users for now
+        totalPages: Math.ceil(users.length / (pagination.limit || 10))
+      }
     };
   }
 
   async getUserById(id: string): Promise<AdminUser | null> {
     try {
-      const response = await this.makeRequest(`/admin/users/${id}`);
-      const user = response.data;
+      const user = await this.makeRequest(`/admin/users/${id}`);
       
       return {
         id: user.id,
@@ -116,8 +123,8 @@ class AdminApiService {
         status: user.is_active ? 'active' : 'suspended',
         createdAt: new Date(user.created_at),
         lastLoginAt: new Date(user.updated_at),
-        totalPosts: user.total_posts,
-        connectedAccounts: user.connected_accounts,
+        totalPosts: user.total_posts || 0,
+        connectedAccounts: user.connected_accounts || 0,
         subscription: {
           plan: 'free',
           features: ['basic_posting']
@@ -139,13 +146,28 @@ class AdminApiService {
     if (updates.role !== undefined) updateData.role = updates.role;
     if (updates.status !== undefined) updateData.is_active = updates.status === 'active';
 
-    const response = await this.makeRequest(`/admin/users/${id}`, {
+    const user = await this.makeRequest(`/admin/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(updateData)
     });
 
-    // Return updated user
-    return this.getUserById(id) as Promise<AdminUser>;
+    // Transform and return the updated user from the PUT response
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.email.split('@')[0],
+      fullName: user.full_name,
+      role: user.role,
+      status: user.is_active ? 'active' : 'suspended',
+      createdAt: new Date(user.created_at),
+      lastLoginAt: new Date(user.updated_at),
+      totalPosts: user.total_posts || 0,
+      connectedAccounts: user.connected_accounts || 0,
+      subscription: {
+        plan: 'free',
+        features: ['basic_posting']
+      }
+    };
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -307,80 +329,179 @@ class AdminApiService {
     console.log('Marking all notifications as read');
   }
 
-  // Platform Management (Mock for now)
-  async getPlatforms(): Promise<any[]> {
-    const mockPlatforms = [
-      {
-        id: 'facebook',
-        name: 'Facebook',
-        color: '#1877F2',
-        gradient: 'from-blue-500 to-blue-600',
-        icon: '📘',
-        connected: true,
-        accessToken: 'mock_token_123',
-        lastPost: '2024-01-15T10:30:00Z',
-        followers: 1250,
-        supportedFormats: {
-          images: ['jpg', 'png', 'gif'],
-          videos: ['mp4', 'mov'],
-          maxImageSize: 4,
-          maxVideoSize: 100,
-          maxVideoDuration: 240
-        }
-      },
-      {
-        id: 'twitter',
-        name: 'Twitter',
-        color: '#1DA1F2',
-        gradient: 'from-blue-400 to-blue-500',
-        icon: '🐦',
-        connected: true,
-        accessToken: 'mock_token_456',
-        lastPost: '2024-01-15T09:15:00Z',
-        followers: 890,
-        supportedFormats: {
-          images: ['jpg', 'png', 'gif'],
-          videos: ['mp4'],
-          maxImageSize: 5,
-          maxVideoSize: 512,
-          maxVideoDuration: 140
-        }
-      },
-      {
-        id: 'instagram',
-        name: 'Instagram',
-        color: '#E4405F',
-        gradient: 'from-pink-500 to-purple-500',
-        icon: '📷',
-        connected: false,
-        supportedFormats: {
-          images: ['jpg', 'png'],
-          videos: ['mp4'],
-          maxImageSize: 8,
-          maxVideoSize: 100,
-          maxVideoDuration: 60
-        }
+  async getSubscriptions(filter: AdminFilter = {}, pagination: Partial<AdminPagination> = {}): Promise<{ subscriptions: any[], pagination: AdminPagination }> {
+    const params = new URLSearchParams();
+    
+    const page = pagination.page || 1;
+    const limit = pagination.limit || 10;
+    
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    if (filter.search) params.append('search', filter.search);
+    if (filter.status) params.append('status', filter.status);
+
+    const response = await this.makeRequest(`/subscriptions?${params.toString()}`);
+    
+    // Chuyển đổi dữ liệu từ API thành định dạng UserSubscription
+    const subscriptions = Array.isArray(response) ? response.map((sub: any) => ({
+      id: sub.id,
+      userId: sub.user_id,
+      planId: sub.subscription_id, // Sử dụng subscription_id từ API làm planId
+      status: sub.is_active ? 'active' : 'expired',
+      startDate: new Date(sub.start_date),
+      endDate: new Date(sub.end_date),
+      autoRenew: true, // Giá trị mặc định
+      totalPaid: 0, // Giá trị mặc định
+      createdAt: new Date(sub.created_at),
+      updatedAt: new Date(sub.updated_at),
+      // Thêm thông tin người dùng và gói đăng ký
+      userName: sub.user?.full_name || sub.user?.email || 'Unknown User',
+      userEmail: sub.user?.email || '',
+      planName: sub.subscription_plan?.name || 'Unknown Plan',
+      planPrice: sub.subscription_plan?.price || 0,
+      planPeriod: sub.subscription_plan?.period || 'monthly'
+    })) : [];
+    
+    return {
+      subscriptions: subscriptions,
+      pagination: {
+        page,
+        limit,
+        total: subscriptions.length,
+        totalPages: Math.ceil(subscriptions.length / limit)
       }
-    ];
-
-    return mockPlatforms;
+    };
   }
 
-  async updatePlatform(id: string, updates: any): Promise<any> {
-    // Mock implementation
-    console.log(`Updating platform ${id}`, updates);
-    return { id, ...updates };
+  async updateSubscription(id: string, isActive: boolean): Promise<any> {
+    // Chuyển đổi dữ liệu từ frontend sang định dạng backend
+    const backendUpdates = {
+      is_active: isActive
+    };
+    
+    return this.makeRequest(`/subscriptions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(backendUpdates)
+    });
   }
 
-  async deletePlatform(id: string): Promise<void> {
-    // Mock implementation
-    console.log(`Deleting platform ${id}`);
+  async approveSubscription(id: string): Promise<any> {
+    return this.makeRequest(`/subscriptions/approve/${id}`, {
+      method: 'POST'
+    });
   }
 
-  async togglePlatformConnection(id: string): Promise<void> {
-    // Mock implementation
-    console.log(`Toggling connection for platform ${id}`);
+  async deleteSubscription(id: string): Promise<void> {
+    await this.makeRequest(`/subscriptions/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async getPricingPlans(): Promise<{ plans: any[] }> {
+    try {
+      const response = await this.makeRequest(`/subscriptions/plans`);
+      
+      // Nếu không có dữ liệu, trả về mảng rỗng
+      if (!response || !Array.isArray(response)) {
+        console.warn('API getPricingPlans không trả về mảng dữ liệu:', response);
+        return { plans: [] };
+      }
+      
+      // Chuyển đổi dữ liệu từ API thành định dạng PricingPlan
+      const plans = response.map((plan: any) => ({
+        id: plan.id,
+        name: plan.name || 'Unknown Plan',
+        price: plan.price || 0,
+        period: `/ ${Math.floor(plan.duration_days / 30)} tháng`,
+        description: plan.description || '',
+        popular: false,
+        features: [
+          { id: '1', name: 'Số video/ngày', value: `${plan.max_videos_per_day}` },
+          { id: '2', name: 'Lên lịch trước tối đa', value: `${plan.max_scheduled_days} ngày` },
+          { id: '3', name: 'Số video có thể lưu', value: `${plan.max_stored_videos}` },
+          { id: '4', name: 'Dung lượng lưu trữ', value: `${plan.storage_limit_gb}GB` },
+          { id: '5', name: 'Tài khoản MXH', value: `${plan.max_social_accounts}` },
+          { id: '6', name: 'Hỗ trợ AI', value: plan.ai_content_generation ? '✅ Full' : '❌ Không' }
+        ],
+        maxUsers: 1,
+        maxPostsPerDay: plan.max_videos_per_day,
+        maxStorageGB: plan.storage_limit_gb,
+        is_active: plan.is_active,
+        createdAt: plan.created_at ? new Date(plan.created_at) : new Date(),
+        updatedAt: plan.updated_at ? new Date(plan.updated_at) : new Date()
+      }));
+      
+      return { plans };
+    } catch (error) {
+      console.error('Error fetching pricing plans:', error);
+      return { plans: [] };
+    }
+  }
+
+  async createPricingPlan(planData: any): Promise<any> {
+    try {
+      // Chuyển đổi dữ liệu từ frontend sang định dạng backend
+      const backendPlan = {
+        name: planData.name,
+        description: planData.description,
+        price: planData.price,
+        duration_days: planData.duration_days || 30,
+        max_videos_per_day: planData.maxPostsPerDay || 3,
+        max_scheduled_days: planData.max_scheduled_days || 7,
+        max_stored_videos: planData.max_stored_videos || 30,
+        storage_limit_gb: planData.maxStorageGB || 5,
+        max_social_accounts: planData.max_social_accounts || 5,
+        ai_content_generation: planData.ai_content_generation !== undefined ? planData.ai_content_generation : true,
+        is_active: planData.is_active !== undefined ? planData.is_active : true
+      };
+      
+      return await this.makeRequest(`/subscriptions/plans`, {
+        method: 'POST',
+        body: JSON.stringify(backendPlan)
+      });
+    } catch (error) {
+      console.error('Error creating pricing plan:', error);
+      throw error;
+    }
+  }
+
+  async updatePricingPlan(id: string, planData: any): Promise<any> {
+    try {
+      // Chuyển đổi dữ liệu từ frontend sang định dạng backend
+      const backendPlan: any = {};
+      
+      if (planData.name !== undefined) backendPlan.name = planData.name;
+      if (planData.description !== undefined) backendPlan.description = planData.description;
+      if (planData.price !== undefined) backendPlan.price = planData.price;
+      if (planData.duration_days !== undefined) backendPlan.duration_days = planData.duration_days;
+      if (planData.maxPostsPerDay !== undefined) backendPlan.max_videos_per_day = planData.maxPostsPerDay;
+      if (planData.max_scheduled_days !== undefined) backendPlan.max_scheduled_days = planData.max_scheduled_days;
+      if (planData.max_stored_videos !== undefined) backendPlan.max_stored_videos = planData.max_stored_videos;
+      if (planData.maxStorageGB !== undefined) backendPlan.storage_limit_gb = planData.maxStorageGB;
+      if (planData.max_social_accounts !== undefined) backendPlan.max_social_accounts = planData.max_social_accounts;
+      if (planData.ai_content_generation !== undefined) backendPlan.ai_content_generation = planData.ai_content_generation;
+      if (planData.is_active !== undefined) backendPlan.is_active = planData.is_active;
+      
+      return await this.makeRequest(`/subscriptions/plans/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(backendPlan)
+      });
+    } catch (error) {
+      console.error('Error updating pricing plan:', error);
+      throw error;
+    }
+  }
+
+  async deletePricingPlan(id: string): Promise<void> {
+    try {
+      await this.makeRequest(`/subscriptions/plans/${id}`, {
+        method: 'DELETE'
+      });
+    } catch (error) {
+      console.error('Error deleting pricing plan:', error);
+      throw error;
+    }
   }
 }
 
-export const adminApiService = new AdminApiService(); 
+export const adminApiService = new AdminApiService();

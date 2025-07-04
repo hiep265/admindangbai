@@ -233,7 +233,6 @@ const UserModal: React.FC<{
                   >
                     <option value="active">Active</option>
                     <option value="suspended">Suspended</option>
-                    <option value="pending">Pending</option>
                   </select>
                 </div>
               </div>
@@ -338,62 +337,13 @@ export const AdminUsers: React.FC = () => {
             Quản lý người dùng và phân quyền trong hệ thống
           </p>
         </div>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+        {/* <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
           <UserPlus className="h-4 w-4 mr-2" />
           Add User
-        </button>
+        </button> */}
       </div>
 
-      {/* Filters */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Search</label>
-            <div className="mt-1 relative">
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={filter.search || ''}
-                onChange={(e) => setFilter({ ...filter, search: e.target.value })}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md text-sm"
-              />
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Role</label>
-            <select
-              value={filter.role || ''}
-              onChange={(e) => setFilter({ ...filter, role: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-            >
-              <option value="">All Roles</option>
-              <option value="user">User</option>
-              <option value="moderator">Moderator</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Status</label>
-            <select
-              value={filter.status || ''}
-              onChange={(e) => setFilter({ ...filter, status: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-            >
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
-              <option value="pending">Pending</option>
-            </select>
-          </div>
-          <div className="flex items-end">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </button>
-          </div>
-        </div>
-      </div>
+      
 
       {/* Users Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">

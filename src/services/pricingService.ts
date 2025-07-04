@@ -6,6 +6,7 @@ import {
     PaymentHistory,
     UserWithSubscription 
   } from '../types/pricing';
+  import { adminApiService } from './adminApiService';
   
   // Mock data
   const mockPlans: PricingPlan[] = [
@@ -172,13 +173,13 @@ import {
   
     // Pricing Plans Management
     async getPlans(): Promise<PricingPlan[]> {
-      // TODO: Thay thế bằng API call thật
-      // const response = await fetch(`${this.baseUrl}/plans`);
-      // return response.json();
-      
-      return new Promise((resolve) => {
-        setTimeout(() => resolve([...mockPlans]), 500); // Simulate API delay
-      });
+      try {
+        const response = await adminApiService.getPricingPlans();
+        return response.plans;
+      } catch (error) {
+        console.error('Error fetching pricing plans:', error);
+        return [];
+      }
     }
   
     async getPlanById(id: string): Promise<PricingPlan | null> {
@@ -195,68 +196,159 @@ import {
     }
   
     async createPlan(plan: Omit<PricingPlan, 'id' | 'createdAt' | 'updatedAt'>): Promise<PricingPlan> {
-      // TODO: Thay thế bằng API call thật
-      // const response = await fetch(`${this.baseUrl}/plans`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(plan)
-      // });
-      // return response.json();
+    try {
+      // Chuyển đổi dữ liệu từ PricingPlan sang định dạng backend
+      const backendPlan = {
+        name: plan.name,
+        description: plan.description,
+        price: plan.price,
+        duration_days: plan.period ? parseInt(plan.period.match(/\d+/)?.[0] || '30') * 30 : 30,
+        max_videos_per_day: plan.maxPostsPerDay || 3,
+        max_scheduled_days: 7,
+        max_stored_videos: 30,
+        storage_limit_gb: plan.maxStorageGB || 5,
+        max_social_accounts: 5,
+        ai_content_generation: true,
+        is_active: true
+      };
       
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const newPlan: PricingPlan = {
-            ...plan,
-            id: Date.now().toString(),
-            createdAt: new Date(),
-            updatedAt: new Date()
-          };
-          mockPlans.push(newPlan);
-          resolve(newPlan);
-        }, 500);
-      });
+      const response = await adminApiService.createPricingPlan(backendPlan);
+      
+      // Chuyển đổi response từ backend sang định dạng PricingPlan
+      const newPlan: PricingPlan = {
+        id: response.id,
+        name: response.name,
+        price: response.price,
+        period: `/ ${Math.floor(response.duration_days / 30)} tháng`,
+        description: response.description || '',
+        popular: false,
+        maxUsers: 1,
+        maxPostsPerDay: response.max_videos_per_day,
+        maxStorageGB: response.storage_limit_gb,
+        features: [
+          { id: '1', name: 'Số video/ngày', value: `${response.max_videos_per_day}` },
+          { id: '2', name: 'Lên lịch trước tối đa', value: `${response.max_scheduled_days} ngày` },
+          { id: '3', name: 'Số video có thể lưu', value: `${response.max_stored_videos}` },
+          { id: '4', name: 'Dung lượng lưu trữ', value: `${response.storage_limit_gb}GB` },
+          { id: '5', name: 'Tài khoản MXH', value: `${response.max_social_accounts}` },
+          { id: '6', name: 'Hỗ trợ AI', value: response.ai_content_generation ? '✅ Full' : '❌ Không' }
+        ],
+        createdAt: response.created_at ? new Date(response.created_at) : new Date(),
+        updatedAt: response.updated_at ? new Date(response.updated_at) : new Date()
+      };
+      
+      return newPlan;
+    } catch (error) {
+      console.error('Error creating pricing plan:', error);
+      throw error;
     }
+  }
   
     async updatePlan(id: string, updates: Partial<PricingPlan>): Promise<PricingPlan> {
-      // TODO: Thay thế bằng API call thật
-      // const response = await fetch(`${this.baseUrl}/plans/${id}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(updates)
-      // });
-      // return response.json();
+    try {
+      // Chuyển đổi dữ liệu từ PricingPlan sang định dạng backend
+      const backendUpdates: any = {};
       
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const index = mockPlans.findIndex(p => p.id === id);
-          if (index !== -1) {
-            mockPlans[index] = {
-              ...mockPlans[index],
-              ...updates,
-              updatedAt: new Date()
-            };
-            resolve(mockPlans[index]);
-          } else {
-            throw new Error('Plan not found');
+      if (updates.name !== undefined) backendUpdates.name = updates.name;
+      if (updates.description !== undefined) backendUpdates.description = updates.description;
+      if (updates.price !== undefined) backendUpdates.price = updates.price;
+      if (updates.period !== undefined) {
+        const match = updates.period.match(/\d+/);
+        if (match) {
+          backendUpdates.duration_days = parseInt(match[0]) * 30;
+        }
+      }
+      if (updates.maxPostsPerDay !== undefined) backendUpdates.max_videos_per_day = updates.maxPostsPerDay;
+      if (updates.maxStorageGB !== undefined) backendUpdates.storage_limit_gb = updates.maxStorageGB;
+      
+      // Xử lý các tính năng đặc biệt nếu có
+      if (updates.features) {
+        const aiFeature = updates.features.find(f => f.name === 'Hỗ trợ AI');
+        if (aiFeature) {
+          backendUpdates.ai_content_generation = aiFeature.value.includes('✅');
+        }
+        
+        const videosPerDay = updates.features.find(f => f.name === 'Số video/ngày');
+        if (videosPerDay) {
+          const match = videosPerDay.value.match(/\d+/);
+          if (match) {
+            backendUpdates.max_videos_per_day = parseInt(match[0]);
           }
-        }, 500);
-      });
+        }
+        
+        const scheduledDays = updates.features.find(f => f.name === 'Lên lịch trước tối đa');
+        if (scheduledDays) {
+          const match = scheduledDays.value.match(/\d+/);
+          if (match) {
+            backendUpdates.max_scheduled_days = parseInt(match[0]);
+          }
+        }
+        
+        const storedVideos = updates.features.find(f => f.name === 'Số video có thể lưu');
+        if (storedVideos) {
+          const match = storedVideos.value.match(/\d+/);
+          if (match) {
+            backendUpdates.max_stored_videos = parseInt(match[0]);
+          }
+        }
+        
+        const storageGB = updates.features.find(f => f.name === 'Dung lượng lưu trữ');
+        if (storageGB) {
+          const match = storageGB.value.match(/\d+/);
+          if (match) {
+            backendUpdates.storage_limit_gb = parseInt(match[0]);
+          }
+        }
+        
+        const socialAccounts = updates.features.find(f => f.name === 'Tài khoản MXH');
+        if (socialAccounts) {
+          const match = socialAccounts.value.match(/\d+/);
+          if (match) {
+            backendUpdates.max_social_accounts = parseInt(match[0]);
+          }
+        }
+      }
+      
+      const response = await adminApiService.updatePricingPlan(id, backendUpdates);
+      
+      // Chuyển đổi response từ backend sang định dạng PricingPlan
+      const updatedPlan: PricingPlan = {
+        id: response.id,
+        name: response.name,
+        price: response.price,
+        period: `/ ${Math.floor(response.duration_days / 30)} tháng`,
+        description: response.description || '',
+        popular: false,
+        maxUsers: 1,
+        maxPostsPerDay: response.max_videos_per_day,
+        maxStorageGB: response.storage_limit_gb,
+        features: [
+          { id: '1', name: 'Số video/ngày', value: `${response.max_videos_per_day}` },
+          { id: '2', name: 'Lên lịch trước tối đa', value: `${response.max_scheduled_days} ngày` },
+          { id: '3', name: 'Số video có thể lưu', value: `${response.max_stored_videos}` },
+          { id: '4', name: 'Dung lượng lưu trữ', value: `${response.storage_limit_gb}GB` },
+          { id: '5', name: 'Tài khoản MXH', value: `${response.max_social_accounts}` },
+          { id: '6', name: 'Hỗ trợ AI', value: response.ai_content_generation ? '✅ Full' : '❌ Không' }
+        ],
+        createdAt: response.created_at ? new Date(response.created_at) : new Date(),
+        updatedAt: response.updated_at ? new Date(response.updated_at) : new Date()
+      };
+      
+      return updatedPlan;
+    } catch (error) {
+      console.error('Error updating pricing plan:', error);
+      throw error;
     }
+  }
   
     async deletePlan(id: string): Promise<void> {
-      // TODO: Thay thế bằng API call thật
-      // await fetch(`${this.baseUrl}/plans/${id}`, { method: 'DELETE' });
-      
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          const index = mockPlans.findIndex(p => p.id === id);
-          if (index !== -1) {
-            mockPlans.splice(index, 1);
-          }
-          resolve();
-        }, 300);
-      });
+    try {
+      await adminApiService.deletePricingPlan(id);
+    } catch (error) {
+      console.error('Error deleting pricing plan:', error);
+      throw error;
     }
+  }
   
     // User Subscriptions Management
     async getUserSubscriptions(userId: string): Promise<UserSubscription[]> {

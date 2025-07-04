@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-const BASE_URL = 'https://67b8-171-224-181-76.ngrok-free.app/api/v1';
+const BASE_URL = 'http://localhost:8000/api/v1';
 
 interface User {
   id: string;
@@ -53,15 +53,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: formBody.toString()
       });
-      const data = await response.json();
-      if (response.status === 200) {
+      const loginData = await response.json();
+
+      if (response.status === 200 && loginData.access_token) {
+        const token = loginData.access_token;
+
+        // Fetch user details from /users/me
+        const meResponse = await fetch(`${BASE_URL}/users/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!meResponse.ok) {
+          const errorData = await meResponse.json().catch(() => ({ detail: 'Failed to fetch user details.' }));
+          throw new Error(errorData.detail);
+        }
+        
+        const meData = await meResponse.json();
+
         const userObj: User = {
-          id: data.user_id || data.id || 'user_id',
-          email: data.email || username,
-          full_name: data.full_name || 'User',
-          token: data.access_token || data.token || 'auth_token',
-          role: data.role || 'user'
+          id: meData.id,
+          email: meData.email,
+          full_name: meData.full_name || 'User',
+          token: token,
+          role: meData.role || 'user'
         };
+
         localStorage.setItem('auth_token', userObj.token);
         localStorage.setItem('user_data', JSON.stringify({
           id: userObj.id,
@@ -69,6 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           full_name: userObj.full_name,
           role: userObj.role
         }));
+        
         setUser(userObj);
         setIsAuthenticated(true);
         setIsLoading(false);
@@ -77,13 +96,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
         setUser(null);
         setIsLoading(false);
-        return { success: false, message: data.detail || 'Sai tên đăng nhập hoặc mật khẩu.' };
+        return { success: false, message: loginData.detail || 'Sai tên đăng nhập hoặc mật khẩu.' };
       }
-    } catch {
+    } catch (error) {
       setIsAuthenticated(false);
       setUser(null);
       setIsLoading(false);
-      return { success: false, message: 'Có lỗi xảy ra. Vui lòng thử lại.' };
+      const errorMessage = error instanceof Error ? error.message : 'Có lỗi xảy ra. Vui lòng thử lại.';
+      return { success: false, message: errorMessage };
     }
   }, []);
 

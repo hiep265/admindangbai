@@ -1,23 +1,11 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { Header } from './components/Header';
-import { ProtectedRoute } from './components/ProtectedRoute';
+
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AdminRoute } from './components/AdminRoute';
 import { AdminLayout } from './components/AdminLayout';
-import { HomePage } from './pages/HomePage';
-import { SolutionPage } from './pages/SolutionPage';
-import { PostsPage } from './pages/PostsPage';
-import { AccountsPage } from './pages/AccountsPage';
-import { PricingPage } from './pages/PricingPage';
 import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
 import { OAuthSuccess } from './pages/OAuthSuccess';
 import { OAuthError } from './pages/OAuthError';
-import { AdminDashboard } from './pages/AdminDashboard';
 import { AdminUsers } from './pages/AdminUsers';
-import { AdminAnalytics } from './pages/AdminAnalytics';
-import { AdminSettings } from './pages/AdminSettings';
-import { AdminPlatforms } from './pages/AdminPlatforms';
 import { AdminPricing } from './pages/AdminPricing';
 import { AdminUserSubscriptions } from './pages/AdminUserSubscriptions';
 import { usePlatforms } from './hooks/usePlatforms';
@@ -26,8 +14,6 @@ import { useScheduler } from './hooks/useScheduler';
 import { useAuth } from './contexts/AuthContext';
 import { apiService } from './services/apiService';
 import { validateMediaForPlatform } from './utils/mediaUtils';
-import { PostHistoryPage } from './pages/PostHistoryPage';
-import ProfilePage from './pages/ProfilePage';
 
 function App() {
   const { platforms, accounts, addAccount, updateAccount, removeAccount, getAccountsByPlatform, fetchAccountsFromBackend } = usePlatforms();
@@ -114,7 +100,7 @@ function App() {
         <Route path="/admin" element={
           <AdminRoute>
             <AdminLayout>
-              <AdminDashboard />
+              <AdminUsers /> {/* Thay đổi từ AdminDashboard sang AdminUsers */}
             </AdminLayout>
           </AdminRoute>
         } />
@@ -125,20 +111,22 @@ function App() {
             </AdminLayout>
           </AdminRoute>
         } />
-        <Route path="/admin/analytics" element={
+        {/* Đã ẩn route Analytics */}
+        {/* <Route path="/admin/analytics" element={
           <AdminRoute>
             <AdminLayout>
               <AdminAnalytics />
             </AdminLayout>
           </AdminRoute>
-        } />
-        <Route path="/admin/platforms" element={
+        } /> */}
+        {/* Đã ẩn route Platforms */}
+        {/* <Route path="/admin/platforms" element={
           <AdminRoute>
             <AdminLayout>
               <AdminPlatforms />
             </AdminLayout>
           </AdminRoute>
-        } />
+        } /> */}
         <Route path="/admin/pricing" element={
           <AdminRoute>
             <AdminLayout>
@@ -153,105 +141,20 @@ function App() {
             </AdminLayout>
           </AdminRoute>
         } />
-        <Route path="/admin/settings" element={
+        {/* Đã ẩn route Settings */}
+        {/* <Route path="/admin/settings" element={
           <AdminRoute>
             <AdminLayout>
               <AdminSettings />
             </AdminLayout>
           </AdminRoute>
-        } />
+        } /> */}
 
-        {/* Public routes */}
-        <Route path="/" element={
-          <>
-            <Header 
-              connectedCount={connectedAccounts.length}
-              totalPosts={posts.length}
-            />
-            <HomePage />
-          </>
-        } />
-        <Route path="/solution" element={
-          <>
-            <Header 
-              connectedCount={connectedAccounts.length}
-              totalPosts={posts.length}
-            />
-            <SolutionPage />
-          </>
-        } />
-        <Route path="/pricing" element={
-          <>
-            <Header 
-              connectedCount={connectedAccounts.length}
-              totalPosts={posts.length}
-            />
-            <PricingPage />
-          </>
-        } />
+        {/* Chỉ giữ lại trang đăng nhập và đăng ký */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
         <Route path="/oauth/success" element={<OAuthSuccess />} />
         <Route path="/oauth/error" element={<OAuthError />} />
-        
-        {/* Protected routes */}
-        <Route path="/post-history" element={
-          <ProtectedRoute>
-            <Header 
-              connectedCount={connectedAccounts.length}
-              totalPosts={posts.length}
-            />
-            <PostHistoryPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Header 
-              connectedCount={connectedAccounts.length}
-              totalPosts={posts.length}
-            />
-            <ProfilePage />
-          </ProtectedRoute>
-        } />
-        <Route 
-          path="/posts" 
-          element={
-            <ProtectedRoute>
-              <Header 
-                connectedCount={connectedAccounts.length}
-                totalPosts={posts.length}
-              />
-              <PostsPage
-                accounts={accounts}
-                posts={posts}
-                isSchedulerActive={isSchedulerActive}
-                onCreatePost={handleCreatePost}
-                onDeletePost={deletePost}
-              />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/accounts" 
-          element={
-            <ProtectedRoute>
-              <Header 
-                connectedCount={connectedAccounts.length}
-                totalPosts={posts.length}
-              />
-              <AccountsPage
-                platforms={platforms}
-                accounts={accounts}
-                onAddAccount={addAccount}
-                onUpdateAccount={updateAccount}
-                onRemoveAccount={removeAccount}
-                getAccountsByPlatform={getAccountsByPlatform}
-                authToken={user?.token}
-                fetchAccountsFromBackend={fetchAccountsFromBackend}
-              />
-            </ProtectedRoute>
-          } 
-        />
       </Routes>
     </div>
   );

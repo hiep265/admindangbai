@@ -30,9 +30,9 @@ export const LoginPage: React.FC = () => {
     
     if (result.success) {
       setMessage({ type: 'success', text: result.message });
-      // Redirect to posts page after successful login
+      // Chuyển hướng đến trang admin sau khi đăng nhập thành công
       setTimeout(() => {
-        navigate('/posts');
+        navigate('/admin');
       }, 1000);
     } else {
       setMessage({ type: 'error', text: result.message });

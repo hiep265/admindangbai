@@ -20,13 +20,13 @@ interface AdminLayoutProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  // { name: 'Dashboard', href: '/admin', icon: LayoutDashboard }, // Đã ẩn Dashboard
   { name: 'Users', href: '/admin/users', icon: Users },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { name: 'Platforms', href: '/admin/platforms', icon: FileText },
+  // { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 }, // Đã ẩn Analytics
+  // { name: 'Platforms', href: '/admin/platforms', icon: FileText }, // Đã ẩn Platforms
   { name: 'Pricing', href: '/admin/pricing', icon: DollarSign },
   { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  // { name: 'Settings', href: '/admin/settings', icon: Settings }, // Đã ẩn Settings
 ];
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
@@ -142,4 +142,4 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       </div>
     </div>
   );
-}; 
+};
