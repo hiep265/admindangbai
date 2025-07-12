@@ -446,7 +446,7 @@ class AdminApiService {
         description: planData.description,
         price: planData.price,
         duration_days: planData.duration_days || 30,
-        max_videos_per_day: planData.maxPostsPerDay || 3,
+        max_videos_per_day: planData.max_videos_per_day || planData.maxPostsPerDay || 3,
         max_scheduled_days: planData.max_scheduled_days || 7,
         max_stored_videos: planData.max_stored_videos || 30,
         storage_limit_gb: planData.maxStorageGB || 5,
@@ -474,6 +474,7 @@ class AdminApiService {
       if (planData.description !== undefined) backendPlan.description = planData.description;
       if (planData.price !== undefined) backendPlan.price = planData.price;
       if (planData.duration_days !== undefined) backendPlan.duration_days = planData.duration_days;
+      if (planData.max_videos_per_day !== undefined) backendPlan.max_videos_per_day = planData.max_videos_per_day;
       if (planData.maxPostsPerDay !== undefined) backendPlan.max_videos_per_day = planData.maxPostsPerDay;
       if (planData.max_scheduled_days !== undefined) backendPlan.max_scheduled_days = planData.max_scheduled_days;
       if (planData.max_stored_videos !== undefined) backendPlan.max_stored_videos = planData.max_stored_videos;

@@ -212,6 +212,11 @@ import {
         is_active: true
       };
       
+      // Đảm bảo trường max_videos_per_day được gửi đúng
+      if (backendPlan.max_videos_per_day !== undefined) {
+        backendPlan.max_videos_per_day = backendPlan.max_videos_per_day;
+      }
+      
       const response = await adminApiService.createPricingPlan(backendPlan);
       
       // Chuyển đổi response từ backend sang định dạng PricingPlan
@@ -260,6 +265,10 @@ import {
       }
       if (updates.maxPostsPerDay !== undefined) backendUpdates.max_videos_per_day = updates.maxPostsPerDay;
       if (updates.maxStorageGB !== undefined) backendUpdates.storage_limit_gb = updates.maxStorageGB;
+      // Đảm bảo trường max_videos_per_day được gửi đúng
+      if (backendUpdates.max_videos_per_day !== undefined) {
+        backendUpdates.max_videos_per_day = backendUpdates.max_videos_per_day;
+      }
       
       // Xử lý các tính năng đặc biệt nếu có
       if (updates.features) {
