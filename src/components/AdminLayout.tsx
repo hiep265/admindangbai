@@ -7,7 +7,12 @@ import {
   X,
   User,
   DollarSign,
-  CreditCard
+  CreditCard,
+  Smartphone,
+  Palette,
+  Database,
+  Link2,
+  HardDrive
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -18,6 +23,10 @@ const navigation = [
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Pricing', href: '/admin/pricing', icon: DollarSign },
   { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+  { name: 'Devices', href: '/admin/devices', icon: Smartphone },
+  { name: 'Colors', href: '/admin/colors', icon: Palette },
+  { name: 'Device Colors', href: '/admin/device-colors', icon: Link2 },
+  { name: 'Device Storage', href: '/admin/device-storage', icon: HardDrive },
 ];
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {

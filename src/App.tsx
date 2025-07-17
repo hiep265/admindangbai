@@ -8,6 +8,10 @@ import { OAuthError } from './pages/OAuthError';
 import { AdminUsers } from './pages/AdminUsers';
 import { AdminPricing } from './pages/AdminPricing';
 import { AdminUserSubscriptions } from './pages/AdminUserSubscriptions';
+import { AdminDevices } from './pages/AdminDevices';
+import { AdminColors } from './pages/AdminColors';
+import { AdminDeviceColors } from './pages/AdminDeviceColors';
+import { AdminDeviceStorage } from './pages/AdminDeviceStorage';
 import { useAuth } from './contexts/AuthContext';
 
 function App() {
@@ -53,6 +57,35 @@ function App() {
           <AdminRoute>
             <AdminLayout>
               <AdminUserSubscriptions />
+            </AdminLayout>
+          </AdminRoute>
+        } />
+        <Route path="/admin/devices" element={
+          <AdminRoute>
+            <AdminLayout>
+              <AdminDevices />
+            </AdminLayout>
+          </AdminRoute>
+        } />
+        <Route path="/admin/colors" element={
+          <AdminRoute>
+            <AdminLayout>
+              <AdminColors />
+            </AdminLayout>
+          </AdminRoute>
+        } />
+
+        <Route path="/admin/device-colors" element={
+          <AdminRoute>
+            <AdminLayout>
+              <AdminDeviceColors />
+            </AdminLayout>
+          </AdminRoute>
+        } />
+        <Route path="/admin/device-storage" element={
+          <AdminRoute>
+            <AdminLayout>
+              <AdminDeviceStorage />
             </AdminLayout>
           </AdminRoute>
         } />
