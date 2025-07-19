@@ -288,7 +288,7 @@ export const AdminDeviceColors: React.FC = () => {
   const fetchDeviceColors = async () => {
     setIsLoading(true);
     try {
-      const result = await deviceApiService.getDeviceColors(filter, pagination);
+      const result = await deviceApiService.getAllDeviceColors(filter, pagination);
       setDeviceColors(result.deviceColors);
       setPagination(prev => ({
         ...prev,
@@ -315,10 +315,13 @@ export const AdminDeviceColors: React.FC = () => {
     if (window.confirm('Bạn có chắc chắn muốn xóa liên kết thiết bị-màu sắc này?')) {
       setIsDeleting(true);
       try {
-        // Cần truyền device_info_id và color_id, giả sử id là device_color_id, cần tìm object
+        // Tìm device color object để lấy device_info_id và color_id
         const deviceColor = deviceColors.find(dc => dc.id === id);
-        if (deviceColor && deviceColor.device_info && deviceColor.color) {
-          await deviceApiService.removeColorFromDevice(deviceColor.device_info.id, deviceColor.color.id);
+        
+        if (deviceColor && deviceColor.device_info_id && deviceColor.color_id) {
+          await deviceApiService.removeColorFromDevice(deviceColor.device_info_id, deviceColor.color_id);
+        } else {
+          throw new Error('Không tìm thấy thông tin thiết bị hoặc màu sắc');
         }
         fetchDeviceColors();
       } catch (error) {

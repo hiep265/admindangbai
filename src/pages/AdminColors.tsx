@@ -619,45 +619,21 @@ export const AdminColors: React.FC = () => {
                 {Math.min(pagination.page * pagination.limit, pagination.total)}
               </span> trong <span className="font-medium">{pagination.total}</span> kết quả
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-700">Hiển thị:</span>
-                <select
-                  value={pagination.limit}
-                  onChange={(e) => {
-                    const newLimit = parseInt(e.target.value);
-                    setPagination(prev => ({
-                      ...prev,
-                      page: 1, // Reset về trang 1 khi thay đổi limit
-                      limit: newLimit
-                    }));
-                  }}
-                  className="border border-gray-300 rounded-md text-sm py-1 px-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="10">10</option>
-                  <option value="20">20</option>
-                  <option value="31">31</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                </select>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className={`inline-flex items-center px-3 py-2 border border-gray-300 text-sm rounded-md ${pagination.page === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'}`}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.totalPages}
-                  className={`inline-flex items-center px-3 py-2 border border-gray-300 text-sm rounded-md ${pagination.page === pagination.totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'}`}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1}
+                className={`inline-flex items-center px-3 py-2 border border-gray-300 text-sm rounded-md ${pagination.page === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'}`}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page === pagination.totalPages}
+                className={`inline-flex items-center px-3 py-2 border border-gray-300 text-sm rounded-md ${pagination.page === pagination.totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-gray-700 hover:bg-gray-50'}`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             </div>
           </div>
         )}
