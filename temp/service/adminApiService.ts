@@ -8,7 +8,7 @@ import {
   AdminPagination 
 } from '../types/admin';
 
-// const BASE_URL = 'http://localhost:8000/api/v1';
+// const BASE_URL = 'https://common-walls-beam.loca.lt//api/v1';
 const PUBLIC_URL = "https://67b8-171-224-181-76.ngrok-free.app/v1"
 
 class AdminApiService {

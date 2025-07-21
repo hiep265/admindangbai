@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const BASE_URL = 'http://localhost:8000/api/v1';
+const BASE_URL = 'https://common-walls-beam.loca.lt//api/v1';
 
 interface User {
   id: string;
