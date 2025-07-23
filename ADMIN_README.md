@@ -179,8 +179,8 @@ async def get_admin_posts():
 - Test các quyền truy cập khác nhau
 
 ### 3. Backend Integration
-- Đảm bảo backend server đang chạy trên `https://common-walls-beam.loca.lt/`
-- Kiểm tra API endpoints trong Swagger UI: `https://common-walls-beam.loca.lt//docs`
+- Đảm bảo backend server đang chạy trên `http://localhost:8000`
+- Kiểm tra API endpoints trong Swagger UI: `http://localhost:8000/docs`
 
 ### 4. Error Handling
 - Kiểm tra console để debug API errors

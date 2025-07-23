@@ -8,8 +8,8 @@ import {
   AdminPagination 
 } from '../types/admin';
 
-// const BASE_URL = 'https://common-walls-beam.loca.lt//api/v1';
-const PUBLIC_URL = "https://common-walls-beam.loca.lt//api/v1"
+// const BASE_URL = 'http://localhost:8000/api/v1';
+const PUBLIC_URL = "http://localhost:8000/api/v1"
 
 class AdminApiService {
   private async makeRequest(endpoint: string, options: RequestInit = {}) {
