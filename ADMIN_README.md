@@ -179,8 +179,8 @@ async def get_admin_posts():
 - Test các quyền truy cập khác nhau
 
 ### 3. Backend Integration
-- Đảm bảo backend server đang chạy trên `http://localhost:8000`
-- Kiểm tra API endpoints trong Swagger UI: `http://localhost:8000/docs`
+- Đảm bảo backend server đang chạy trên `http://192.168.1.161:8000'`
+- Kiểm tra API endpoints trong Swagger UI: `http://192.168.1.161:8000/docs`
 
 ### 4. Error Handling
 - Kiểm tra console để debug API errors

@@ -1,5 +1,5 @@
 
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AdminRoute } from './components/AdminRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { LoginPage } from './pages/LoginPage';
@@ -8,11 +8,18 @@ import { OAuthError } from './pages/OAuthError';
 import { AdminUsers } from './pages/AdminUsers';
 import { AdminPricing } from './pages/AdminPricing';
 import { AdminUserSubscriptions } from './pages/AdminUserSubscriptions';
-import { AdminDevices } from './pages/AdminDevices';
-import { AdminColors } from './pages/AdminColors';
-import { AdminDeviceColors } from './pages/AdminDeviceColors';
-import { AdminDeviceStorage } from './pages/AdminDeviceStorage';
 import { useAuth } from './contexts/AuthContext';
+
+// Import các tab components
+import DevicesTab from './pages/ChatbotPage/DevicesTab';
+import ColorsTab from './pages/ChatbotPage/ColorsTab';
+import DeviceColorsTab from './pages/ChatbotPage/DeviceColorsTab';
+import DeviceInfosTab from './pages/ChatbotPage/DeviceInfosTab';
+import DeviceStorageTab from './pages/ChatbotPage/DeviceStorageTab';
+import ChatbotTab from './pages/ChatbotPage/ChatbotTab';
+import LinhKienManagementTabs from './pages/ChatbotPage/LinhKienManagementTabs';
+import SettingsTab from './pages/ChatbotPage/SettingsTab';
+
 
 function App() {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -31,64 +38,32 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Routes>
-        {/* Admin routes */}
-        <Route path="/admin" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminUsers />
-            </AdminLayout>
-          </AdminRoute>
-        } />
-        <Route path="/admin/users" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminUsers />
-            </AdminLayout>
-          </AdminRoute>
-        } />
-        <Route path="/admin/pricing" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminPricing />
-            </AdminLayout>
-          </AdminRoute>
-        } />
-        <Route path="/admin/subscriptions" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminUserSubscriptions />
-            </AdminLayout>
-          </AdminRoute>
-        } />
-        <Route path="/admin/devices" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminDevices />
-            </AdminLayout>
-          </AdminRoute>
-        } />
-        <Route path="/admin/colors" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminColors />
-            </AdminLayout>
-          </AdminRoute>
-        } />
-
-        <Route path="/admin/device-colors" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminDeviceColors />
-            </AdminLayout>
-          </AdminRoute>
-        } />
-        <Route path="/admin/device-storage" element={
-          <AdminRoute>
-            <AdminLayout>
-              <AdminDeviceStorage />
-            </AdminLayout>
-          </AdminRoute>
-        } />
+        {/* Admin routes using a layout route */}
+        <Route 
+          path="/admin" 
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route index element={<Navigate to="users" replace />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="pricing" element={<AdminPricing />} />
+          <Route path="subscriptions" element={<AdminUserSubscriptions />} />
+          {/* Thay thế ChatbotLayout bằng Outlet để các tab con render trực tiếp */}
+          <Route path="chatbot" element={<Outlet />}>
+            <Route index element={<Navigate to="devices" replace />} />
+            <Route path="devices" element={<DevicesTab />} />
+            <Route path="device-infos" element={<DeviceInfosTab />} />
+            <Route path="colors" element={<ColorsTab />} />
+            <Route path="device-colors" element={<DeviceColorsTab />} />
+            <Route path="device-storage" element={<DeviceStorageTab />} />
+            <Route path="product-components" element={<LinhKienManagementTabs />} />
+            <Route path="chat" element={<ChatbotTab />} />
+            <Route path="settings" element={<SettingsTab />} />
+          </Route>
+        </Route>
 
         {/* Auth routes */}
         <Route path="/" element={<Navigate to="/login" replace />} />

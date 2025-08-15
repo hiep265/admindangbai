@@ -9,29 +9,103 @@ import {
   DollarSign,
   CreditCard,
   Smartphone,
-  Palette,
+  MessageSquare,
+  Package,
   Database,
-  Link2,
-  HardDrive
+  Palette,
+  Layers,
+  Settings,
+  ChevronDown
 } from 'lucide-react';
 
-interface AdminLayoutProps {
-  children?: React.ReactNode;
-}
+interface AdminLayoutProps {}
 
 const navigation = [
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Pricing', href: '/admin/pricing', icon: DollarSign },
   { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
-  { name: 'Devices', href: '/admin/devices', icon: Smartphone },
-  { name: 'Colors', href: '/admin/colors', icon: Palette },
-  { name: 'Device Colors', href: '/admin/device-colors', icon: Link2 },
-  { name: 'Device Storage', href: '/admin/device-storage', icon: HardDrive },
+  { 
+    name: 'Chatbot', 
+    href: '/admin/chatbot', 
+    icon: MessageSquare,
+    children: [
+      { name: 'Thiết bị', href: '/admin/chatbot/devices', icon: Smartphone },
+      { name: 'Thông tin thiết bị', href: '/admin/chatbot/device-infos', icon: Database },
+      { name: 'Màu sắc', href: '/admin/chatbot/colors', icon: Palette },
+      { name: 'TB - Màu sắc', href: '/admin/chatbot/device-colors', icon: Layers },
+      { name: 'TB - Dung lượng', href: '/admin/chatbot/device-storage', icon: Layers },
+      { name: 'Linh kiện', href: '/admin/chatbot/product-components', icon: Package },
+      { name: 'Chat', href: '/admin/chatbot/chat', icon: MessageSquare },
+      { name: 'Cài đặt', href: '/admin/chatbot/settings', icon: Settings },
+    ]
+  },
 ];
 
-export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+const NavItem: React.FC<{ item: any }> = ({ item }) => {
   const location = useLocation();
+  const isParentActive = location.pathname.startsWith(item.href);
+  const [isOpen, setIsOpen] = useState(isParentActive);
+
+  if (!item.children) {
+    const isActive = location.pathname === item.href;
+    return (
+      <Link
+        to={item.href}
+        className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+          isActive
+            ? 'bg-blue-600 text-white'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+        }`}
+      >
+        <item.icon className="mr-3 h-5 w-5" />
+        {item.name}
+      </Link>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={`group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md ${
+          isParentActive
+            ? 'bg-blue-100 text-blue-700'
+            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+        }`}
+      >
+        <item.icon className="mr-3 h-5 w-5" />
+        <span className="flex-1 text-left">{item.name}</span>
+        <ChevronDown
+          className={`h-5 w-5 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+      {isOpen && (
+        <div className="pl-5 mt-1 space-y-1">
+          {item.children.map((child: any) => {
+            const isChildActive = location.pathname === child.href;
+            return (
+              <Link
+                key={child.name}
+                to={child.href}
+                className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
+                  isChildActive
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                }`}
+              >
+                <child.icon className="mr-3 h-5 w-5" />
+                {child.name}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const AdminLayout: React.FC<AdminLayoutProps> = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -49,24 +123,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </button>
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
+            {navigation.map((item) => (
+              <NavItem key={item.name} item={item} />
+            ))}
           </nav>
         </div>
       </div>
@@ -78,30 +137,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
           </div>
           <nav className="flex-1 space-y-1 px-2 py-4">
-            {navigation.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                  }`}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
+            {navigation.map((item) => (
+              <NavItem key={item.name} item={item} />
+            ))}
           </nav>
         </div>
       </div>
 
       {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top bar */}
         <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -110,17 +154,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           >
             <Menu className="h-6 w-6" />
           </button>
-
+          <div className="flex-1 h-px bg-gray-200 lg:hidden" />
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1" />
             <div className="flex items-center gap-x-4 lg:gap-x-6">
-              {/* Notifications */}
               <button className="relative p-2 text-gray-400 hover:text-gray-500">
                 <Bell className="h-6 w-6" />
                 <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-400" />
               </button>
-
-              {/* Profile dropdown */}
               <div className="relative">
                 <button className="flex items-center gap-x-2 text-sm font-medium text-gray-700 hover:text-gray-900">
                   <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
@@ -132,11 +173,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </div>
           </div>
         </div>
-
-        {/* Page content */}
         <main className="py-6">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            {children || <Outlet />}
+          <div className="px-4 sm:px-6 lg:px-8">
+            <Outlet />
           </div>
         </main>
       </div>
