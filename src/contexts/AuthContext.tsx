@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-const BASE_URL = 'http://192.168.1.161:8000/api/v1';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL + '/api/v1';
 
 interface User {
   id: string;

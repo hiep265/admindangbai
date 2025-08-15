@@ -1,4 +1,4 @@
-const PUBLIC_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000';
+const PUBLIC_URL = import.meta.env.VITE_API_BASE_URL;
 
 export interface WarrantyService {
   id: string;

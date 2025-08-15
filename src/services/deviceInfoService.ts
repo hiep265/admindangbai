@@ -1,7 +1,7 @@
 import { DeviceInfo } from '../types/deviceTypes';
 import { getAuthToken } from './apiService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const deviceInfoService = {
   async getDeviceInfos(filter: { search?: string; brand?: string; sort_by?: string; sort_order?: 'asc' | 'desc' } = {}, pagination: { page?: number; limit?: number } = {}) {

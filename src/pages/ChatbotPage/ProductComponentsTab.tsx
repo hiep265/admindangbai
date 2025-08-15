@@ -104,7 +104,7 @@ const ProductComponentsTab: React.FC<ProductComponentsTabProps> = ({ isAuthentic
         return;
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000'}/api/v1/product-components/export`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/product-components/export`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -146,7 +146,7 @@ const ProductComponentsTab: React.FC<ProductComponentsTabProps> = ({ isAuthentic
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000'}/api/v1/product-components/import`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/product-components/import`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

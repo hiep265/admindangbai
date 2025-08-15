@@ -1,6 +1,6 @@
 import { Brand } from '../types/Brand';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000'; // Ensure this is your correct API URL
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 class BrandService {
   private async makeRequest(endpoint: string, options: RequestInit = {}) {

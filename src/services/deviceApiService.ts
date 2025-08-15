@@ -9,7 +9,7 @@ import {
   DevicePagination,
 } from "../types/device";
 
-const PUBLIC_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000';
+const PUBLIC_URL = import.meta.env.VITE_API_BASE_URL;
 
 class DeviceApiService {
   private isValidUUID(uuid: string): boolean {

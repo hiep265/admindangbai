@@ -1,6 +1,6 @@
 import { DeviceBrand, DeviceBrandCreate, DeviceBrandUpdate } from "../types/deviceBrand";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000';
+const API_URL = import.meta.env.VITE_API_BASE_URL;
 
 class DeviceBrandService {
   private async makeRequest(endpoint: string, options: RequestInit = {}) {

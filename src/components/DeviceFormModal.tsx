@@ -101,8 +101,8 @@ const DeviceFormModal: React.FC<DeviceFormModalProps> = ({ isOpen, onClose, onSa
           const headers = { 'Authorization': `Bearer ${token}` };
 
           const [colorsRes, storagesRes] = await Promise.all([
-            fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000'}/api/v1/device-infos/${deviceId}/colors`, { headers }),
-            fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://192.168.1.161:8000'}/api/v1/device-infos/${deviceId}/storages`, { headers }),
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/device-infos/${deviceId}/colors`, { headers }),
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/device-infos/${deviceId}/storages`, { headers }),
           ]);
 
           const colorsData = await colorsRes.json();
