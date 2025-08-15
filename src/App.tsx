@@ -8,6 +8,7 @@ import { OAuthError } from './pages/OAuthError';
 import { AdminUsers } from './pages/AdminUsers';
 import { AdminPricing } from './pages/AdminPricing';
 import { AdminUserSubscriptions } from './pages/AdminUserSubscriptions';
+import { AdminProfile } from './pages/AdminProfile';
 import { useAuth } from './contexts/AuthContext';
 
 // Import các tab components
@@ -51,6 +52,7 @@ function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="pricing" element={<AdminPricing />} />
           <Route path="subscriptions" element={<AdminUserSubscriptions />} />
+          <Route path="profile" element={<AdminProfile />} />
           {/* Thay thế ChatbotLayout bằng Outlet để các tab con render trực tiếp */}
           <Route path="chatbot" element={<Outlet />}>
             <Route index element={<Navigate to="devices" replace />} />

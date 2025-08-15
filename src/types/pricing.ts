@@ -10,6 +10,7 @@ export interface PricingPlan {
   name: string;
   price: number;
   period: string;
+  duration_days?: number;
   description: string;
   popular: boolean;
   discount?: string;

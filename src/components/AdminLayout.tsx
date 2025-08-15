@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, Outlet } from 'react-router-dom';
 import { 
   Users, 
@@ -22,7 +22,7 @@ interface AdminLayoutProps {}
 
 const navigation = [
   { name: 'Users', href: '/admin/users', icon: Users },
-  { name: 'Pricing', href: '/admin/pricing', icon: DollarSign },
+  { name: 'Gói đăng bài tự động', href: '/admin/pricing', icon: DollarSign },
   { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
   { 
     name: 'Chatbot', 
@@ -106,6 +106,38 @@ const NavItem: React.FC<{ item: any }> = ({ item }) => {
 
 export const AdminLayout: React.FC<AdminLayoutProps> = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const adminMenuRef = useRef<HTMLDivElement>(null);
+
+  // Xử lý click outside để đóng dropdown menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
+        setAdminMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    // Xóa token và chuyển về trang login
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
+  const handleEditProfile = () => {
+    // Chuyển đến trang chỉnh sửa profile
+    window.location.href = '/admin/profile';
+  };
+
+  const toggleAdminMenu = () => {
+    setAdminMenuOpen(!adminMenuOpen);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -163,12 +195,34 @@ export const AdminLayout: React.FC<AdminLayoutProps> = () => {
                 <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-400" />
               </button>
               <div className="relative">
-                <button className="flex items-center gap-x-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+                <button 
+                  onClick={toggleAdminMenu}
+                  className="flex items-center gap-x-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                >
                   <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
                     <User className="h-4 w-4 text-white" />
                   </div>
                   <span>Admin</span>
+                  <ChevronDown className={`h-4 w-4 transform transition-transform duration-200 ${adminMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
+                
+                {/* Dropdown menu */}
+                {adminMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200" ref={adminMenuRef}>
+                    <button
+                      onClick={handleEditProfile}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sửa tài khoản
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

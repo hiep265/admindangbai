@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   full_name: string;
+  phone?: string;
   token: string;
   role?: 'admin' | 'user';
 }
@@ -17,6 +18,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<any>;
   logout: () => void;
   register: (email: string, password: string, full_name: string, confirm_password: string) => Promise<any>;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -76,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: meData.id,
           email: meData.email,
           full_name: meData.full_name || 'User',
+          phone: meData.phone || '',
           token: token,
           role: meData.role || 'user'
         };
@@ -85,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: userObj.id,
           email: userObj.email,
           full_name: userObj.full_name,
+          phone: userObj.phone,
           role: userObj.role
         }));
         
@@ -157,8 +161,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  const updateUser = useCallback((userData: Partial<User>) => {
+    setUser(prevUser => {
+      if (prevUser) {
+        const updatedUser = { ...prevUser, ...userData };
+        // Cập nhật localStorage
+        localStorage.setItem('user_data', JSON.stringify({
+          id: updatedUser.id,
+          email: updatedUser.email,
+          full_name: updatedUser.full_name,
+          phone: updatedUser.phone,
+          role: updatedUser.role
+        }));
+        return updatedUser;
+      }
+      return null;
+    });
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout, register }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, logout, register, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
