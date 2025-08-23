@@ -8,6 +8,7 @@ import { OAuthError } from './pages/OAuthError';
 import { AdminUsers } from './pages/AdminUsers';
 import { AdminPricing } from './pages/AdminPricing';
 import { AdminUserSubscriptions } from './pages/AdminUserSubscriptions';
+import { AdminChatbotPermissions } from './pages/AdminChatbotPermissions';
 import { AdminProfile } from './pages/AdminProfile';
 import { useAuth } from './contexts/AuthContext';
 
@@ -52,6 +53,7 @@ function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="pricing" element={<AdminPricing />} />
           <Route path="subscriptions" element={<AdminUserSubscriptions />} />
+          <Route path="chatbot-permissions" element={<AdminChatbotPermissions />} />
           <Route path="profile" element={<AdminProfile />} />
           {/* Thay thế ChatbotLayout bằng Outlet để các tab con render trực tiếp */}
           <Route path="chatbot" element={<Outlet />}>

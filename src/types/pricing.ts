@@ -38,6 +38,12 @@ export interface UserSubscription {
   totalPaid: number;
   createdAt?: Date;
   updatedAt?: Date;
+  // Additional fields for admin display
+  userName?: string;
+  userEmail?: string;
+  planName?: string;
+  planPrice?: number;
+  planPeriod?: string;
 }
 
 // Subscription usage tracking
