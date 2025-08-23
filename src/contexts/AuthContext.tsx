@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = useCallback(async (email: string, password: string, full_name: string, confirm_password: string) => {
     try {
-      const response = await fetch(`${BASE_URL}/users/register`, {
+      const response = await fetch(`${BASE_URL}/registration/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
