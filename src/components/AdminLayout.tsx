@@ -15,7 +15,8 @@ import {
   Palette,
   Layers,
   Settings,
-  ChevronDown
+  ChevronDown,
+  Shield
 } from 'lucide-react';
 
 interface AdminLayoutProps {}
@@ -24,16 +25,15 @@ const navigation = [
   { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Gói đăng bài tự động', href: '/admin/pricing', icon: DollarSign },
   { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+  { name: 'Chatbot Permissions', href: '/admin/chatbot-permissions', icon: Shield },
   { 
     name: 'Chatbot', 
     href: '/admin/chatbot', 
     icon: MessageSquare,
     children: [
       { name: 'Thiết bị', href: '/admin/chatbot/devices', icon: Smartphone },
-      { name: 'Thông tin thiết bị', href: '/admin/chatbot/device-infos', icon: Database },
-      { name: 'Màu sắc', href: '/admin/chatbot/colors', icon: Palette },
-      { name: 'TB - Màu sắc', href: '/admin/chatbot/device-colors', icon: Layers },
-      { name: 'TB - Dung lượng', href: '/admin/chatbot/device-storage', icon: Layers },
+      { name: 'Thiết bị - Màu sắc', href: '/admin/chatbot/device-colors', icon: Layers },
+      { name: 'Thiết bị - Dung lượng', href: '/admin/chatbot/device-storage', icon: Layers },
       { name: 'Linh kiện', href: '/admin/chatbot/product-components', icon: Package },
       { name: 'Chat', href: '/admin/chatbot/chat', icon: MessageSquare },
       { name: 'Cài đặt', href: '/admin/chatbot/settings', icon: Settings },
