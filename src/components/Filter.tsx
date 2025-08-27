@@ -110,18 +110,30 @@ const Filter: React.FC<FilterProps> = ({ config, onFilterChange }) => {
                   {item.label}
                 </label>
                 {item.type === 'select' && (
-                  <select
-                    value={activeFilters[item.key] || ''}
-                    onChange={(e) => handleFilterChange(item.key, e.target.value)}
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                  >
-                    <option value="">Tất cả</option>
-                    {Array.isArray(item.options) && item.options.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div>
+                                         <select
+                       value={activeFilters[item.key] || ''}
+                       onChange={(e) => handleFilterChange(item.key, e.target.value)}
+                       className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                     >
+                       <option value="">
+                         {!Array.isArray(item.options) || item.options.length === 0 
+                           ? 'Vui lòng chọn thuộc tính trước' 
+                           : 'Tất cả'
+                         }
+                       </option>
+                       {Array.isArray(item.options) && item.options.map(option => (
+                         <option key={option.value} value={option.value}>
+                           {option.label}
+                         </option>
+                       ))}
+                     </select>
+                    {!Array.isArray(item.options) || item.options.length === 0 ? (
+                      <p className="mt-1 text-xs text-gray-500">
+                        Vui lòng chọn một thuộc tính trước để xem các giá trị
+                      </p>
+                    ) : null}
+                  </div>
                 )}
                 {item.type === 'range-number' && (
                   <div className="flex items-center gap-2 mt-1">

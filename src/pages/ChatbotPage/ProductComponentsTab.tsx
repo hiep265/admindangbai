@@ -3,6 +3,7 @@ import { Plus, Trash2, Edit, Save, X, Search, ChevronsUpDown, ChevronLeft, Chevr
 import { productComponentService } from '../../services/productComponentService';
 import { ProductComponent, ProductComponentCreate, ProductComponentUpdate, Category, Property } from '../../types/productComponentTypes';
 import PropertySelector from '../../components/PropertySelector';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 interface ProductComponentsTabProps {
   isAuthenticated: boolean;
@@ -17,6 +18,7 @@ const ProductComponentsTab: React.FC<ProductComponentsTabProps> = ({ isAuthentic
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: keyof ProductComponent; direction: 'ascending' | 'descending' } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isImportingExcel, setIsImportingExcel] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -136,6 +138,7 @@ const ProductComponentsTab: React.FC<ProductComponentsTabProps> = ({ isAuthentic
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setIsImportingExcel(true);
     try {
       const token = localStorage.getItem('auth_token');
       if (!token) {
@@ -165,6 +168,7 @@ const ProductComponentsTab: React.FC<ProductComponentsTabProps> = ({ isAuthentic
       console.error('Error importing product components:', error);
       alert('Import thất bại! Vui lòng kiểm tra lại file và thử lại.');
     } finally {
+      setIsImportingExcel(false);
       // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -373,10 +377,24 @@ const ProductComponentsTab: React.FC<ProductComponentsTabProps> = ({ isAuthentic
           </button>
           <button
             onClick={triggerFileInput}
-            className="flex items-center bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md transition duration-200"
+            disabled={isImportingExcel}
+            className={`flex items-center px-4 py-2 rounded-md transition duration-200 ${
+              isImportingExcel 
+                ? 'bg-yellow-400 cursor-not-allowed' 
+                : 'bg-yellow-500 hover:bg-yellow-600'
+            } text-white`}
           >
-            <Upload className="mr-2 h-5 w-5" />
-            Nhập Excel
+            {isImportingExcel ? (
+              <>
+                <LoadingSpinner size="sm" text="" />
+                Đang xử lý...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-5 w-5" />
+                Nhập Excel
+              </>
+            )}
           </button>
           <input
             type="file"

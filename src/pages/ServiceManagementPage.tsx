@@ -10,6 +10,7 @@ import { DeviceBrand } from '../types/deviceBrand';
 import { ServiceModal } from '../components/ServiceModal';
 import { BrandModal } from '../components/BrandModal';
 import { ExportModal } from '../components/ExportModal';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 type SortConfig = {
     key: keyof Brand;
@@ -22,6 +23,7 @@ export const ServiceManagementPage: React.FC = () => {
     const [selectedService, setSelectedService] = useState<Service | null>(null);
     const [isLoadingServices, setIsLoadingServices] = useState(true);
     const [isLoadingBrands, setIsLoadingBrands] = useState(false);
+    const [isImportingExcel, setIsImportingExcel] = useState(false);
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
   
     const [serviceModalOpen, setServiceModalOpen] = useState(false);
@@ -263,6 +265,7 @@ export const ServiceManagementPage: React.FC = () => {
         const file = event.target.files?.[0];
         if (!file) return;
 
+        setIsImportingExcel(true);
         try {
             const result = await brandService.importBrands(file);
             if (result.data.error > 0) {
@@ -286,6 +289,7 @@ export const ServiceManagementPage: React.FC = () => {
         } catch (error) {
             Swal.fire('Lỗi Import', 'Có lỗi xảy ra trong quá trình import file.', 'error');
         } finally {
+            setIsImportingExcel(false);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
@@ -339,8 +343,25 @@ export const ServiceManagementPage: React.FC = () => {
                 </h2>
             </div>
             <div className="flex items-center gap-2">
-                <button onClick={handleImportClick} className="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-                    <FileUp className="mr-2" size={18} /> Import Excel
+                <button 
+                    onClick={handleImportClick} 
+                    disabled={isImportingExcel}
+                    className={`flex items-center px-4 py-2 rounded-lg ${
+                        isImportingExcel 
+                            ? 'bg-green-400 cursor-not-allowed' 
+                            : 'bg-green-500 hover:bg-green-600'
+                    } text-white`}
+                >
+                    {isImportingExcel ? (
+                        <>
+                            <LoadingSpinner size="sm" text="" />
+                            Đang xử lý...
+                        </>
+                    ) : (
+                        <>
+                            <FileUp className="mr-2" size={18} /> Import Excel
+                        </>
+                    )}
                 </button>
                 <input type="file" ref={fileInputRef} onChange={handleFileImport} className="hidden" accept=".xlsx, .xls" />
 
