@@ -35,6 +35,7 @@ const navigation = [
       { name: 'Thiết bị - Màu sắc', href: '/admin/chatbot/device-colors', icon: Layers },
       { name: 'Thiết bị - Dung lượng', href: '/admin/chatbot/device-storage', icon: Layers },
       { name: 'Linh kiện', href: '/admin/chatbot/product-components', icon: Package },
+      { name: 'Thương hiệu', href: '/admin/service-management', icon: Palette },
       { name: 'Chat', href: '/admin/chatbot/chat', icon: MessageSquare },
       { name: 'Cài đặt', href: '/admin/chatbot/settings', icon: Settings },
     ]

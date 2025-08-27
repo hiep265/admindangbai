@@ -9,6 +9,7 @@ import deviceBrandService from '../services/deviceBrandService';
 import { DeviceBrand } from '../types/deviceBrand';
 import { ServiceModal } from '../components/ServiceModal';
 import { BrandModal } from '../components/BrandModal';
+import { DeviceBrandModal } from '../components/DeviceBrandModal';
 import { ExportModal } from '../components/ExportModal';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -34,6 +35,8 @@ export const ServiceManagementPage: React.FC = () => {
     const [currentBrand, setCurrentBrand] = useState<Partial<Brand> | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [deviceBrands, setDeviceBrands] = useState<DeviceBrand[]>([]);
+    const [deviceBrandModalOpen, setDeviceBrandModalOpen] = useState(false);
+    const [currentDeviceBrand, setCurrentDeviceBrand] = useState<Partial<DeviceBrand> | null>(null);
     const [isServicesVisible, setIsServicesVisible] = useState(true);
     const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
 
@@ -220,6 +223,37 @@ export const ServiceManagementPage: React.FC = () => {
         });
     };
 
+    // Device Brand Handlers
+    const handleOpenDeviceBrandModal = (deviceBrand: Partial<DeviceBrand> | null = null) => {
+        setCurrentDeviceBrand(deviceBrand ? { ...deviceBrand } as DeviceBrand : { id: '', name: '', warranty: '', user_id: '', created_at: '', updated_at: '' });
+        setDeviceBrandModalOpen(true);
+    };
+
+    const handleCloseDeviceBrandModal = () => {
+        setDeviceBrandModalOpen(false);
+        setCurrentDeviceBrand(null);
+    };
+
+    const handleDeleteDeviceBrand = (deviceBrandId: string) => {
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xóa thương hiệu này?',
+            text: "Tất cả các loại sử dụng thương hiệu này có thể bị ảnh hưởng.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Vâng, xóa nó!',
+            cancelButtonText: 'Hủy'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await deviceBrandService.deleteDeviceBrand(deviceBrandId);
+                    fetchDeviceBrands();
+                } catch (error) {
+                    Swal.fire('Lỗi', 'Không thể xóa thương hiệu.', 'error');
+                }
+            }
+        });
+    };
+
     const toggleNoteExpansion = (brandId: string) => {
         setExpandedNotes(prev => ({
             ...prev,
@@ -300,7 +334,7 @@ export const ServiceManagementPage: React.FC = () => {
     <div className="container mx-auto px-4 py-8 flex gap-8 h-[calc(100vh-80px)]">
       {/* Services Column */}
       {isServicesVisible && (
-        <div className="w-1/4 bg-white shadow-md rounded-lg p-4 flex flex-col transition-all duration-300">
+        <div className="w-1/4 bg-white shadow-md rounded-lg p-4 flex flex-col transition-all duration-300 flex-shrink-0">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-800">Dịch vụ</h2>
                 <div className="flex items-center gap-2">
@@ -331,107 +365,147 @@ export const ServiceManagementPage: React.FC = () => {
         </div>
       )}
 
-      {/* Brands Column */}
-      <div className={`${isServicesVisible ? 'w-3/4' : 'w-full'} bg-white shadow-md rounded-lg p-4 flex flex-col transition-all duration-300`}>
-        <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-4">
-                <button onClick={() => setIsServicesVisible(!isServicesVisible)} className="p-2 rounded-full hover:bg-gray-200">
-                    <ChevronsUpDown size={20} />
-                </button>
-                <h2 className="text-xl font-bold text-gray-800">
-                    {selectedService ? `Loại & Bảo hành cho "${selectedService.name}"` : "Tất cả Loại & Bảo hành"}
-                </h2>
-            </div>
-            <div className="flex items-center gap-2">
-                <button 
-                    onClick={handleImportClick} 
-                    disabled={isImportingExcel}
-                    className={`flex items-center px-4 py-2 rounded-lg ${
-                        isImportingExcel 
-                            ? 'bg-green-400 cursor-not-allowed' 
-                            : 'bg-green-500 hover:bg-green-600'
-                    } text-white`}
-                >
-                    {isImportingExcel ? (
-                        <>
-                            <LoadingSpinner size="sm" text="" />
-                            Đang xử lý...
-                        </>
-                    ) : (
-                        <>
-                            <FileUp className="mr-2" size={18} /> Import Excel
-                        </>
-                    )}
-                </button>
-                <input type="file" ref={fileInputRef} onChange={handleFileImport} className="hidden" accept=".xlsx, .xls" />
-
-                <button onClick={handleOpenExportModal} className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                    <FileDown className="mr-2" size={18} /> Export Excel
-                </button>
-                {selectedService && (
-                    <button onClick={() => handleOpenBrandModal()} className="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">
-                      <Plus className="mr-2" size={18} /> Thêm loại
+      {/* Main Content Area */}
+      <div className="flex-grow flex gap-8">
+        {/* Brands Column */}
+        <div className={`w-2/3 bg-white shadow-md rounded-lg p-4 flex flex-col transition-all duration-300`}>
+            <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => setIsServicesVisible(!isServicesVisible)} className="p-2 rounded-full hover:bg-gray-200">
+                        <ChevronsUpDown size={20} />
                     </button>
-                )}
+                    <h2 className="text-xl font-bold text-gray-800">
+                        {selectedService ? `Loại & Bảo hành cho "${selectedService.name}"` : "Tất cả Loại & Bảo hành"}
+                    </h2>
+                </div>
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={handleImportClick} 
+                        disabled={isImportingExcel}
+                        className={`flex items-center px-4 py-2 rounded-lg ${
+                            isImportingExcel 
+                                ? 'bg-green-400 cursor-not-allowed' 
+                                : 'bg-green-500 hover:bg-green-600'
+                        } text-white`}
+                    >
+                        {isImportingExcel ? (
+                            <>
+                                <LoadingSpinner size="sm" text="" />
+                                Đang xử lý...
+                            </> 
+                        ) : (
+                            <>
+                                <FileUp className="mr-2" size={18} /> Import Excel
+                            </>
+                        )}
+                    </button>
+                    <input type="file" ref={fileInputRef} onChange={handleFileImport} className="hidden" accept=".xlsx, .xls" />
+
+                    <button onClick={handleOpenExportModal} className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        <FileDown className="mr-2" size={18} /> Export Excel
+                    </button>
+                    {selectedService && (
+                        <button onClick={() => handleOpenBrandModal()} className="flex items-center px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600">
+                          <Plus className="mr-2" size={18} /> Thêm loại
+                        </button>
+                    )}
+                </div>
             </div>
-        </div>
-        {isLoadingBrands ? (
-            <div className="text-center p-4">Đang tải...</div>
-        ) : (
-            <div className="overflow-x-auto">
-                <table className="min-w-full">
-                    <thead>
-                        <tr className="bg-gray-100">
-                           {!selectedService && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên dịch vụ</th>}
-                           {renderSortableHeader('service_code', 'Mã DV')}
-                           {renderSortableHeader('name', 'Loại dịch vụ')}
-                           {renderSortableHeader('device_brand_id', 'Thương hiệu')}
-                           {renderSortableHeader('device_type', 'Loại máy')}
-                           {renderSortableHeader('color', 'Màu sắc')}
-                           {renderSortableHeader('price', 'Giá')}
-                           {renderSortableHeader('warranty', 'Bảo hành')}
-                           {renderSortableHeader('note', 'Ghi chú')}
-                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {brands && brands.map(brand => (
-                            <tr key={brand.id}>
-                                {!selectedService && <td className="px-6 py-4 whitespace-nowrap">{brand.service?.name}</td>}
-                                <td className="px-6 py-4 whitespace-nowrap">{brand.service_code}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{brand.name}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{deviceBrands.find(db => db.id === brand.device_brand_id)?.name || ''}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{brand.device_type || ''}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{brand.color || ''}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{formatPrice(brand.price)}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">{brand.warranty}</td>
-                                <td className="px-6 py-4" style={{ maxWidth: '250px' }}>
-                                    {brand.note && brand.note.length > 20 ? (
-                                        <div className="whitespace-normal break-words">
-                                            {expandedNotes[brand.id] ? brand.note : `${brand.note.substring(0, 20)}...`}
-                                            <button
-                                                onClick={() => toggleNoteExpansion(brand.id)}
-                                                className="text-blue-500 hover:text-blue-700 text-xs ml-1"
-                                            >
-                                                {expandedNotes[brand.id] ? 'Thu gọn' : 'Xem thêm'}
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="whitespace-normal break-words">
-                                            {brand.note || ''}
-                                        </div>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right">
-                                    <button onClick={() => handleOpenBrandModal(brand)} className="text-indigo-600 hover:text-indigo-900 mr-4"><Edit size={20}/></button>
-                                    <button onClick={() => handleDeleteBrand(brand.id)} className="text-red-600 hover:text-red-900"><Trash2 size={20}/></button>
-                                </td>
+            {isLoadingBrands ? (
+                <div className="text-center p-4">Đang tải...</div>
+            ) : (
+                <div className="overflow-auto">
+                    <table className="min-w-full">
+                        <thead>
+                            <tr className="bg-gray-100">
+                               {!selectedService && <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên dịch vụ</th>}
+                               {renderSortableHeader('service_code', 'Mã DV')}
+                               {renderSortableHeader('name', 'Loại dịch vụ')}
+                               {renderSortableHeader('device_brand_id', 'Thương hiệu')}
+                               {renderSortableHeader('device_type', 'Loại máy')}
+                               {renderSortableHeader('color', 'Màu sắc')}
+                               {renderSortableHeader('price', 'Giá')}
+                               {renderSortableHeader('warranty', 'Bảo hành')}
+                               {renderSortableHeader('note', 'Ghi chú')}
+                               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                            {brands && brands.map(brand => (
+                                <tr key={brand.id}>
+                                    {!selectedService && <td className="px-6 py-4 whitespace-nowrap">{brand.service?.name}</td>}
+                                    <td className="px-6 py-4 whitespace-nowrap">{brand.service_code}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{brand.name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{deviceBrands.find(db => db.id === brand.device_brand_id)?.name || ''}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{brand.device_type || ''}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{brand.color || ''}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{formatPrice(brand.price)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap">{brand.warranty}</td>
+                                    <td className="px-6 py-4" style={{ maxWidth: '250px' }}>
+                                        {brand.note && brand.note.length > 20 ? (
+                                            <div className="whitespace-normal break-words">
+                                                {expandedNotes[brand.id] ? brand.note : `${brand.note.substring(0, 20)}...`}
+                                                <button
+                                                    onClick={() => toggleNoteExpansion(brand.id)}
+                                                    className="text-blue-500 hover:text-blue-700 text-xs ml-1"
+                                                >
+                                                    {expandedNotes[brand.id] ? 'Thu gọn' : 'Xem thêm'}
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="whitespace-normal break-words">
+                                                {brand.note || ''}
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                                        <button onClick={() => handleOpenBrandModal(brand)} className="text-indigo-600 hover:text-indigo-900 mr-4"><Edit size={20}/></button>
+                                        <button onClick={() => handleDeleteBrand(brand.id)} className="text-red-600 hover:text-red-900"><Trash2 size={20}/></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+
+        {/* Device Brands Section */}
+        <div className="w-1/3 bg-white shadow-md rounded-lg p-4 flex flex-col">
+            <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-700">Thương hiệu</h3>
+                <button 
+                    onClick={() => handleOpenDeviceBrandModal()} 
+                    className="p-1 rounded-full hover:bg-gray-200 text-purple-600"
+                    title="Thêm thương hiệu mới"
+                >
+                    <Plus size={18} />
+                </button>
             </div>
-        )}
+            <ul className="space-y-1 overflow-y-auto">
+                {deviceBrands.map(brand => (
+                    <li key={brand.id} className="flex justify-between items-center p-2 hover:bg-gray-100 rounded">
+                        <span className="text-sm">{brand.name}</span>
+                        <div className="flex gap-1">
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); handleOpenDeviceBrandModal(brand); }}
+                                className="p-1 rounded hover:bg-gray-200 text-blue-600"
+                                title="Sửa"
+                            >
+                                <Edit size={14} />
+                            </button>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); handleDeleteDeviceBrand(brand.id); }}
+                                className="p-1 rounded hover:bg-gray-200 text-red-600"
+                                title="Xóa"
+                            >
+                                <Trash2 size={14} />
+                            </button>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
       </div>
       
       <ServiceModal 
@@ -459,6 +533,14 @@ export const ServiceManagementPage: React.FC = () => {
         selectedServicesForExport={selectedServicesForExport}
         handleSelectServiceForExport={handleSelectServiceForExport}
         handleSelectAllServicesForExport={handleSelectAllServicesForExport}
+      />
+      
+      <DeviceBrandModal
+        isOpen={deviceBrandModalOpen}
+        onClose={handleCloseDeviceBrandModal}
+        onSave={fetchDeviceBrands}
+        currentDeviceBrand={currentDeviceBrand}
+        setCurrentDeviceBrand={setCurrentDeviceBrand}
       />
     </div>
   );

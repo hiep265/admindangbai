@@ -10,6 +10,7 @@ import { AdminPricing } from './pages/AdminPricing';
 import { AdminUserSubscriptions } from './pages/AdminUserSubscriptions';
 import { AdminChatbotPermissions } from './pages/AdminChatbotPermissions';
 import { AdminProfile } from './pages/AdminProfile';
+import { ServiceManagementPage } from './pages/ServiceManagementPage';
 import { useAuth } from './contexts/AuthContext';
 
 // Import các tab components
@@ -22,9 +23,8 @@ import ChatbotTab from './pages/ChatbotPage/ChatbotTab';
 import LinhKienManagementTabs from './pages/ChatbotPage/LinhKienManagementTabs';
 import SettingsTab from './pages/ChatbotPage/SettingsTab';
 
-
 function App() {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -55,6 +55,7 @@ function App() {
           <Route path="subscriptions" element={<AdminUserSubscriptions />} />
           <Route path="chatbot-permissions" element={<AdminChatbotPermissions />} />
           <Route path="profile" element={<AdminProfile />} />
+          <Route path="service-management" element={<ServiceManagementPage />} />
           {/* Thay thế ChatbotLayout bằng Outlet để các tab con render trực tiếp */}
           <Route path="chatbot" element={<Outlet />}>
             <Route index element={<Navigate to="devices" replace />} />
