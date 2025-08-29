@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { DeviceInfo } from '../../types/deviceTypes';
 import { deviceInfoService } from '../../services/deviceInfoService';
-import { Plus, Edit, Trash2, Search, Loader, ChevronLeft, ChevronRight, ChevronsUpDown, ChevronDown, ChevronUp, FileUp, FileDown } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Loader, ChevronsUpDown, ChevronDown, ChevronUp, FileUp, FileDown } from 'lucide-react';
 import DeviceInfoModal from '../../components/DeviceInfoModal';
 import Pagination from '../../components/Pagination';
 import Filter, { FilterConfig } from '../../components/Filter';
@@ -14,6 +14,7 @@ const DeviceInfosTab: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportingExcel, setIsImportingExcel] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedDeviceInfo, setSelectedDeviceInfo] = useState<DeviceInfo | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -136,6 +137,21 @@ const DeviceInfosTab: React.FC = () => {
     }
   };
 
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      await deviceInfoService.exportDeviceInfos({
+        search: searchTerm,
+        brand: filters.brand,
+      });
+    } catch (error) {
+      console.error('Error exporting device infos:', error);
+      alert('Có lỗi xảy ra khi xuất file.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const handleTriggerImport = () => {
     fileInputRef.current?.click();
   };
@@ -236,6 +252,27 @@ const DeviceInfosTab: React.FC = () => {
             <FileDown size={20} className="mr-2" />
             Export Mẫu
           </button>
+          <button 
+            onClick={handleExport} 
+            disabled={isExporting}
+            className={`px-4 py-2 rounded-lg flex items-center ${
+              isExporting 
+                ? 'bg-yellow-400 cursor-not-allowed' 
+                : 'bg-yellow-500 hover:bg-yellow-600'
+            } text-white`}
+          >
+            {isExporting ? (
+              <>
+                <LoadingSpinner size="sm" text="" />
+                Đang xuất...
+              </>
+            ) : (
+              <>
+                <FileDown size={20} className="mr-2" />
+                Export
+              </>
+            )}
+          </button>
           <button onClick={handleCreate} className="bg-indigo-500 text-white px-4 py-2 rounded-lg flex items-center">
             <Plus size={20} className="mr-2" />
             Thêm thông tin
@@ -296,6 +333,8 @@ const DeviceInfosTab: React.FC = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kết nối/HĐH</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Màu (EN)</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kích thước/Trọng lượng</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vật liệu vỏ</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cảm biến & Sức khỏe</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onClick={() => handleSort('created_at')}>
                    <div className="flex items-center">
                     Ngày tạo
@@ -320,6 +359,8 @@ const DeviceInfosTab: React.FC = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{info.connectivity_os}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{info.color_english}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{info.dimensions_weight}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{info.shell_material}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{info.sensors_health_features}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(info.created_at)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button onClick={() => handleEdit(info)} className="text-indigo-600 hover:text-indigo-900 mr-4">

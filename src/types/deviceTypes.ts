@@ -10,6 +10,8 @@ export interface DeviceInfo {
   connectivity_os?: string;
   color_english?: string;
   dimensions_weight?: string;
+  shell_material?: string;
+  sensors_health_features?: string;
   warranty?: string;
   user_id?: string;
   created_at: string;

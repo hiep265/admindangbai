@@ -131,4 +131,27 @@ export const deviceInfoService = {
     }
     return response.json();
   },
-}; 
+
+  async exportDeviceInfos(filter: { search?: string; brand?: string } = {}): Promise<void> {
+    const token = getAuthToken();
+    const params = new URLSearchParams();
+    if (filter.search) params.append('search', filter.search);
+    if (filter.brand) params.append('brand', filter.brand);
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/device-infos/export?${params.toString()}`, {
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error('Failed to export device infos');
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'danh_sach_thiet_bi.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  },
+};
