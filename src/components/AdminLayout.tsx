@@ -11,7 +11,6 @@ import {
   Smartphone,
   MessageSquare,
   Package,
-  Database,
   Palette,
   Layers,
   Settings,
@@ -22,10 +21,10 @@ import {
 interface AdminLayoutProps {}
 
 const navigation = [
-  { name: 'Users', href: '/admin/users', icon: Users },
+  { name: 'Người dùng', href: '/admin/users', icon: Users },
   { name: 'Gói đăng bài tự động', href: '/admin/pricing', icon: DollarSign },
-  { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
-  { name: 'Chatbot Permissions', href: '/admin/chatbot-permissions', icon: Shield },
+  { name: 'Người dùng đăng ký', href: '/admin/subscriptions', icon: CreditCard },
+  { name: 'Phân quyền Chatbot', href: '/admin/chatbot-permissions', icon: Shield },
   { 
     name: 'Chatbot', 
     href: '/admin/chatbot', 
