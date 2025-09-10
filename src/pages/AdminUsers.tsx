@@ -257,41 +257,15 @@ const UserModal: React.FC<{
 };
 
 const CreateUserForm: React.FC<{ onUserCreated: () => void }> = ({ onUserCreated }) => {
-  const [step, setStep] = useState(1);
+  const [showForm, setShowForm] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  const handleSendVerificationCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setMessage(null);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/registration/send-verification-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      // The backend now returns {status: 'success', message: '...'}
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.detail || 'Failed to send verification code.');
-      }
-      setMessage(data.message || 'Verification code sent to your email.');
-      setStep(2);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -299,15 +273,14 @@ const CreateUserForm: React.FC<{ onUserCreated: () => void }> = ({ onUserCreated
     setError(null);
     setMessage(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/registration/register`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/registration/register-direct`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           password,
           full_name: fullName,
-          subscription_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          verification_code: verificationCode,
+          subscription_id: "6e7542ac-0161-4785-bbb5-9c59058632ff",
         }),
       });
       const data = await response.json();
@@ -315,15 +288,12 @@ const CreateUserForm: React.FC<{ onUserCreated: () => void }> = ({ onUserCreated
         throw new Error(data.detail || 'Failed to register user.');
       }
       setMessage('User created successfully!');
-      // Reset form
       setTimeout(() => {
-        setStep(1);
         setEmail('');
         setPassword('');
         setFullName('');
-        setVerificationCode('');
         setMessage(null);
-        // Refresh user list
+        setShowForm(false);
         onUserCreated();
       }, 2000);
     } catch (err: any) {
@@ -333,101 +303,79 @@ const CreateUserForm: React.FC<{ onUserCreated: () => void }> = ({ onUserCreated
     }
   };
 
+  if (!showForm) {
+    return (
+      <div className="flex justify-start">
+        <button
+          onClick={() => setShowForm(true)}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+        >
+          Thêm người dùng
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white shadow rounded-lg p-6">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Tạo người dùng mới</h3>
       {error && <div className="mb-4 text-red-600 bg-red-100 p-3 rounded-md">{error}</div>}
       {message && <div className="mb-4 text-green-600 bg-green-100 p-3 rounded-md">{message}</div>}
       
-      {step === 1 ? (
-        <form onSubmit={handleSendVerificationCode} className="space-y-4">
+      <form onSubmit={handleRegister} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Địa chỉ email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="email-verification" className="block text-sm font-medium text-gray-700">Địa chỉ email</label>
-            <div className="mt-1 flex rounded-md shadow-sm">
-              <input
-                type="email"
-                id="email-verification"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1 block w-full border border-gray-300 rounded-none rounded-l-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="user@example.com"
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300"
-              >
-                {loading ? 'Sending...' : 'Nhận mã'}
-              </button>
-            </div>
-          </div>
-        </form>
-      ) : (
-        <form onSubmit={handleRegister} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              value={email}
-              readOnly
-              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tên người dùng</label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Mã xác thực</label>
+            <label className="block text-sm font-medium text-gray-700">Tên người dùng</label>
             <input
               type="text"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               required
               className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
             />
           </div>
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={() => {
-                setStep(1); 
-                setError(null);
-                setMessage(null);
-              }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-            >
-              Quay lại
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-            >
-              {loading ? 'Đang đăng ký...' : 'Đăng ký'}
-            </button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
           </div>
-        </form>
-      )}
+        </div>
+        <div className="flex justify-end space-x-3">
+          <button
+            type="button"
+            onClick={() => {
+              setShowForm(false);
+              setError(null);
+              setMessage(null);
+            }}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+          >
+            Hủy
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+          >
+            {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

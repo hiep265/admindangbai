@@ -70,19 +70,20 @@ class AdminApiService {
   async getUsers(filter: AdminFilter = {}, pagination: Partial<AdminPagination> = {}): Promise<{ users: AdminUser[], pagination: AdminPagination }> {
     const params = new URLSearchParams();
     
-    const page = pagination.page || 1;
-    const limit = pagination.limit || 10;
-    
-    params.append('page', page.toString());
-    params.append('limit', limit.toString());
+    // Per user request, fetch all users and paginate on the client-side.
+    params.append('skip', '0');
+    params.append('limit', '10000');
+
     if (filter.search) params.append('search', filter.search);
     if (filter.role) params.append('role', filter.role);
     if (filter.status) params.append('status', filter.status);
 
     const response = await this.makeRequest(`/admin/users?${params.toString()}`);
     
-    // The backend now returns a list of users directly
-    const users: AdminUser[] = response.map((user: any) => ({
+    // Assuming the response is a flat array of users.
+    const allUsersData = Array.isArray(response) ? response : [];
+
+    const allUsers: AdminUser[] = allUsersData.map((user: any) => ({
       id: user.id,
       email: user.email,
       username: user.email.split('@')[0],
@@ -99,13 +100,21 @@ class AdminApiService {
       }
     }));
 
+    // Now, perform pagination on the client side.
+    const page = pagination.page || 1;
+    const limit = pagination.limit || 10;
+    const totalUsers = allUsers.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedUsers = allUsers.slice(startIndex, endIndex);
+
     return {
-      users,
+      users: paginatedUsers,
       pagination: {
-        page: pagination.page || 1,
-        limit: pagination.limit || 10,
-        total: users.length, // Assuming the API returns all users for now
-        totalPages: Math.ceil(users.length / (pagination.limit || 10))
+        page: page,
+        limit: limit,
+        total: totalUsers,
+        totalPages: Math.ceil(totalUsers / limit)
       }
     };
   }
