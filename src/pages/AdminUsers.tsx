@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
+import {  
   MoreVertical, 
   Edit, 
   Trash2, 
   Eye,
-  UserPlus,
-  Download,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -164,7 +161,7 @@ const UserModal: React.FC<{
           {mode === 'view' ? (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <label className="block text-sm font-medium text-gray-700">Tên người dùng</label>
                 <p className="mt-1 text-sm text-gray-900">{user.fullName}</p>
               </div>
               <div>
@@ -172,19 +169,19 @@ const UserModal: React.FC<{
                 <p className="mt-1 text-sm text-gray-900">{user.email}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Role</label>
+                <label className="block text-sm font-medium text-gray-700">Quyền</label>
                 <p className="mt-1 text-sm text-gray-900">{user.role}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Status</label>
+                <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
                 <p className="mt-1 text-sm text-gray-900">{user.status}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Total Posts</label>
+                <label className="block text-sm font-medium text-gray-700">Bài viết đã đăng</label>
                 <p className="mt-1 text-sm text-gray-900">{user.totalPosts}</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Connected Accounts</label>
+                <label className="block text-sm font-medium text-gray-700">Số tài khoản kết nối</label>
                 <p className="mt-1 text-sm text-gray-900">{user.connectedAccounts}</p>
               </div>
             </div>
@@ -195,7 +192,7 @@ const UserModal: React.FC<{
             }}>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700">Tên người dùng</label>
                   <input
                     type="text"
                     value={formData.fullName || ''}
@@ -213,7 +210,7 @@ const UserModal: React.FC<{
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Role</label>
+                  <label className="block text-sm font-medium text-gray-700">Quyền</label>
                   <select
                     value={formData.role || ''}
                     onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
@@ -225,7 +222,7 @@ const UserModal: React.FC<{
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <label className="block text-sm font-medium text-gray-700">Trạng thái</label>
                   <select
                     value={formData.status || ''}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
@@ -242,19 +239,195 @@ const UserModal: React.FC<{
                   onClick={onClose}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
                 >
-                  Save Changes
+                  Lưu thay đổi
                 </button>
               </div>
             </form>
           )}
         </div>
       </div>
+    </div>
+  );
+};
+
+const CreateUserForm: React.FC<{ onUserCreated: () => void }> = ({ onUserCreated }) => {
+  const [step, setStep] = useState(1);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const handleSendVerificationCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/registration/send-verification-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      // The backend now returns {status: 'success', message: '...'}
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to send verification code.');
+      }
+      setMessage(data.message || 'Verification code sent to your email.');
+      setStep(2);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/registration/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: fullName,
+          subscription_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          verification_code: verificationCode,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to register user.');
+      }
+      setMessage('User created successfully!');
+      // Reset form
+      setTimeout(() => {
+        setStep(1);
+        setEmail('');
+        setPassword('');
+        setFullName('');
+        setVerificationCode('');
+        setMessage(null);
+        // Refresh user list
+        onUserCreated();
+      }, 2000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white shadow rounded-lg p-6">
+      <h3 className="text-lg font-medium text-gray-900 mb-4">Tạo người dùng mới</h3>
+      {error && <div className="mb-4 text-red-600 bg-red-100 p-3 rounded-md">{error}</div>}
+      {message && <div className="mb-4 text-green-600 bg-green-100 p-3 rounded-md">{message}</div>}
+      
+      {step === 1 ? (
+        <form onSubmit={handleSendVerificationCode} className="space-y-4">
+          <div>
+            <label htmlFor="email-verification" className="block text-sm font-medium text-gray-700">Địa chỉ email</label>
+            <div className="mt-1 flex rounded-md shadow-sm">
+              <input
+                type="email"
+                id="email-verification"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="flex-1 block w-full border border-gray-300 rounded-none rounded-l-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="user@example.com"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-r-md text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300"
+              >
+                {loading ? 'Sending...' : 'Nhận mã'}
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              readOnly
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-gray-100"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tên người dùng</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Mật khẩu</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Mã xác thực</label>
+            <input
+              type="text"
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              required
+              className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => {
+                setStep(1); 
+                setError(null);
+                setMessage(null);
+              }}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+            >
+              Quay lại
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:bg-blue-300"
+            >
+              {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 };
@@ -332,7 +505,7 @@ export const AdminUsers: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Quản lý người dùng</h1>
           <p className="mt-1 text-sm text-gray-500">
             Quản lý người dùng và phân quyền trong hệ thống
           </p>
@@ -343,12 +516,12 @@ export const AdminUsers: React.FC = () => {
         </button> */}
       </div>
 
-      
+      <CreateUserForm onUserCreated={fetchUsers} />
 
       {/* Users Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Users ({pagination.total})</h3>
+          <h3 className="text-lg font-medium text-gray-900">Người dùng ({pagination.total})</h3>
         </div>
         
         {loading ? (
@@ -361,25 +534,25 @@ export const AdminUsers: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    User
+                    Người dùng
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
+                    Quyền
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    Trạng thái
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Posts
+                    Bài viết đã đăng
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Accounts
+                    Tài khoản kết nối
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Joined
+                    Ngày tham gia
                   </th>
                   <th className="relative px-6 py-3">
-                    <span className="sr-only">Actions</span>
+                    <span className="sr-only">Hành động</span>
                   </th>
                 </tr>
               </thead>
@@ -404,14 +577,14 @@ export const AdminUsers: React.FC = () => {
                   disabled={pagination.page === 1}
                   className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                 >
-                  Previous
+                  Trước
                 </button>
                 <button
                   onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
                   disabled={pagination.page === pagination.totalPages}
                   className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                 >
-                  Next
+                  Tiếp
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
@@ -425,7 +598,7 @@ export const AdminUsers: React.FC = () => {
                     </span>
                     {' '}of{' '}
                     <span className="font-medium">{pagination.total}</span>
-                    {' '}results
+                    {' '}kết quả
                   </p>
                 </div>
                 <div>
