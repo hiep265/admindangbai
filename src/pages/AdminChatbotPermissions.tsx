@@ -69,6 +69,86 @@ export const AdminChatbotPermissions: React.FC = () => {
     }
   };
 
+  const handleEditSubscription = async (subscription: UserChatbotSubscription) => {
+    // Build a small form with plan select, months, status, is_active
+    const planOptions = plans.map(p => `<option value="${p.id}" ${p.id === subscription.plan.id ? 'selected' : ''}>${p.name}</option>`).join('');
+    const html = `
+      <div class="space-y-3 text-left">
+        <label class="block text-sm font-medium text-gray-700">Gói cước</label>
+        <select id="swal-plan" class="swal2-select">${planOptions}</select>
+
+        <label class="block text-sm font-medium text-gray-700 mt-2">Số tháng</label>
+        <input id="swal-months" type="number" min="1" value="${subscription.months_subscribed}" class="swal2-input" />
+
+        <label class="block text-sm font-medium text-gray-700 mt-2">Trạng thái</label>
+        <select id="swal-status" class="swal2-select">
+          <option value="pending" ${subscription.status === 'pending' ? 'selected' : ''}>Chờ phê duyệt</option>
+          <option value="approved" ${subscription.status === 'approved' ? 'selected' : ''}>Đã phê duyệt</option>
+          <option value="rejected" ${subscription.status === 'rejected' ? 'selected' : ''}>Đã từ chối</option>
+        </select>
+
+        <label class="inline-flex items-center mt-2">
+          <input id="swal-active" type="checkbox" class="mr-2" ${subscription.is_active ? 'checked' : ''} />
+          <span>Kích hoạt</span>
+        </label>
+      </div>
+    `;
+
+    const result = await Swal.fire({
+      title: 'Cập nhật đăng ký',
+      html,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Lưu',
+      cancelButtonText: 'Hủy',
+      preConfirm: () => {
+        const plan_id = (document.getElementById('swal-plan') as HTMLSelectElement)?.value;
+        const monthsStr = (document.getElementById('swal-months') as HTMLInputElement)?.value;
+        const status = (document.getElementById('swal-status') as HTMLSelectElement)?.value as 'pending' | 'approved' | 'rejected';
+        const is_active = (document.getElementById('swal-active') as HTMLInputElement)?.checked;
+        const months = parseInt(monthsStr || '0', 10);
+        if (!months || months < 1) {
+          Swal.showValidationMessage('Số tháng phải >= 1');
+          return;
+        }
+        return { plan_id, months_subscribed: months, status, is_active };
+      }
+    });
+
+    if (result.isConfirmed && result.value) {
+      try {
+        await chatbotService.updateUserSubscription(subscription.id, result.value);
+        Swal.fire('Thành công', 'Cập nhật đăng ký thành công!', 'success');
+        fetchData();
+      } catch (error) {
+        console.error('Error updating subscription:', error);
+        Swal.fire('Lỗi', 'Không thể cập nhật đăng ký.', 'error');
+      }
+    }
+  };
+
+  const handleDeleteSubscription = async (subscriptionId: string) => {
+    const result = await Swal.fire({
+      title: 'Xác nhận xóa',
+      text: 'Bạn có chắc chắn muốn xóa đăng ký này? Hành động này không thể hoàn tác.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await chatbotService.deleteUserSubscription(subscriptionId);
+        Swal.fire('Thành công', 'Đã xóa đăng ký.', 'success');
+        fetchData();
+      } catch (error) {
+        console.error('Error deleting subscription:', error);
+        Swal.fire('Lỗi', 'Không thể xóa đăng ký.', 'error');
+      }
+    }
+  };
+
   // Service Management
   const handleOpenServiceModal = (service: ChatbotService | null = null) => {
     setCurrentService(service);
@@ -476,24 +556,40 @@ export const AdminChatbotPermissions: React.FC = () => {
                       <div className="text-sm text-gray-900">{formatPrice(subscription.total_price)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {subscription.status === 'pending' && (
-                        <div className="flex space-x-2 justify-end">
-                          <button
-                            onClick={() => handleApproveSubscription(subscription.id)}
-                            className="text-green-600 hover:text-green-900"
-                            title="Phê duyệt"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleRejectSubscription(subscription.id)}
-                            className="text-red-600 hover:text-red-900"
-                            title="Từ chối"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex space-x-2 justify-end">
+                        {subscription.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleApproveSubscription(subscription.id)}
+                              className="text-green-600 hover:text-green-900"
+                              title="Phê duyệt"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleRejectSubscription(subscription.id)}
+                              className="text-red-600 hover:text-red-900"
+                              title="Từ chối"
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
+                        <button
+                          onClick={() => handleEditSubscription(subscription)}
+                          className="text-indigo-600 hover:text-indigo-900"
+                          title="Chỉnh sửa"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteSubscription(subscription.id)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Xóa"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

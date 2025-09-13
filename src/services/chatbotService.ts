@@ -8,6 +8,7 @@ import {
   ChatbotPlanCreate,
   ChatbotPlanUpdate,
   UserChatbotSubscriptionCreate,
+  UserChatbotSubscriptionUpdate,
   ChatbotPermissionCreate,
   ChatbotPermissionUpdate
 } from '../types/chatbot';
@@ -123,7 +124,7 @@ class ChatbotServiceClass {
     });
   }
 
-  async updateUserSubscription(id: string, data: Partial<UserChatbotSubscription>): Promise<UserChatbotSubscription> {
+  async updateUserSubscription(id: string, data: UserChatbotSubscriptionUpdate): Promise<UserChatbotSubscription> {
     return this.request<UserChatbotSubscription>(`/admin/subscriptions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),

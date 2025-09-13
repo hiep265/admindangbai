@@ -82,6 +82,13 @@ export interface UserChatbotSubscriptionCreate {
   months_subscribed: number;
 }
 
+export interface UserChatbotSubscriptionUpdate {
+  plan_id?: string;
+  months_subscribed?: number;
+  is_active?: boolean;
+  status?: 'pending' | 'approved' | 'rejected';
+}
+
 export interface ChatbotPermissionCreate {
   service_id: string;
   user_id: string;
