@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { instructionService } from '../../services/instructionService';
 import { Instruction } from '../../types/instruction';
-import { Plus, Save, Trash2, RefreshCw } from 'lucide-react';
+import { Save, RefreshCw } from 'lucide-react';
 
 const InstructionsTab: React.FC = () => {
   const [items, setItems] = useState<Instruction[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [newKey, setNewKey] = useState('');
-  const [newValue, setNewValue] = useState('');
 
   const load = async () => {
     setLoading(true);
@@ -62,38 +59,6 @@ const InstructionsTab: React.FC = () => {
     }
   };
 
-  const createOne = async () => {
-    if (!newKey.trim()) return;
-    setCreating(true);
-    setError(null);
-    try {
-      const data = await instructionService.create({ key: newKey.trim(), value: newValue });
-      setItems((prev: Instruction[]) => {
-        const exists = prev.some((x: Instruction) => x.key === data.key);
-        return exists ? prev.map((x: Instruction) => (x.key === data.key ? data : x)) : [...prev, data];
-      });
-      setNewKey('');
-      setNewValue('');
-    } catch (e: any) {
-      setError(e?.message || 'Lỗi tạo mới');
-    } finally {
-      setCreating(false);
-    }
-  };
-
-  const deleteOne = async (key: string) => {
-    if (!confirm('Xoá instruction này?')) return;
-    setSaving(true);
-    setError(null);
-    try {
-      await instructionService.delete(key);
-      setItems((prev: Instruction[]) => prev.filter((x: Instruction) => x.key !== key));
-    } catch (e: any) {
-      setError(e?.message || 'Lỗi xoá');
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -122,28 +87,6 @@ const InstructionsTab: React.FC = () => {
       )}
 
       <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200 flex items-center gap-2">
-          <input
-            type="text"
-            value={newKey}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewKey(e.target.value)}
-            placeholder="Key"
-            className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <textarea
-            value={newValue}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewValue(e.target.value)}
-            placeholder="Value"
-            className="flex-[2] border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[44px]"
-          />
-          <button
-            onClick={createOne}
-            className="inline-flex items-center px-3 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
-            disabled={creating}
-          >
-            <Plus className="h-4 w-4 mr-2" /> Thêm
-          </button>
-        </div>
         <div className="divide-y divide-gray-200">
           {items.map((it: Instruction, idx: number) => (
             <div key={it.key} className="p-4 flex items-start gap-2">
@@ -163,13 +106,6 @@ const InstructionsTab: React.FC = () => {
                     disabled={saving}
                   >
                     <Save className="h-4 w-4 mr-2" /> Lưu
-                  </button>
-                  <button
-                    onClick={() => deleteOne(it.key)}
-                    className="inline-flex items-center px-3 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
-                    disabled={saving}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" /> Xoá
                   </button>
                 </div>
               </div>
