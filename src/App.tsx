@@ -22,6 +22,7 @@ import DeviceStorageTab from './pages/ChatbotPage/DeviceStorageTab';
 import ChatbotTab from './pages/ChatbotPage/ChatbotTab';
 import LinhKienManagementTabs from './pages/ChatbotPage/LinhKienManagementTabs';
 import SettingsTab from './pages/ChatbotPage/SettingsTab';
+import InstructionsTab from './pages/ChatbotPage/InstructionsTab';
 
 function App() {
   const { isLoading } = useAuth();
@@ -67,6 +68,7 @@ function App() {
             <Route path="product-components" element={<LinhKienManagementTabs />} />
             <Route path="chat" element={<ChatbotTab />} />
             <Route path="settings" element={<SettingsTab />} />
+            <Route path="instructions" element={<InstructionsTab />} />
           </Route>
         </Route>
 

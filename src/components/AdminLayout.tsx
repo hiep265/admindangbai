@@ -36,6 +36,7 @@ const navigation = [
       { name: 'Linh kiện', href: '/admin/chatbot/product-components', icon: Package },
       { name: 'Thương hiệu', href: '/admin/service-management', icon: Palette },
       { name: 'Chat', href: '/admin/chatbot/chat', icon: MessageSquare },
+      { name: 'Instructions', href: '/admin/chatbot/instructions', icon: Settings },
       { name: 'Cài đặt', href: '/admin/chatbot/settings', icon: Settings },
     ]
   },
