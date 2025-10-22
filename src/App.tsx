@@ -24,6 +24,7 @@ import LinhKienManagementTabs from './pages/ChatbotPage/LinhKienManagementTabs';
 import SettingsTab from './pages/ChatbotPage/SettingsTab';
 import SystemPromptTab from './pages/ChatbotPage/SystemPromptTab';
 import SystemPromptCustomTab from './pages/ChatbotPage/SystemPromptCustomTab';
+import InstructionsTab from './pages/ChatbotPage/InstructionsTab';
 
 function App() {
   const { isLoading } = useAuth();
@@ -71,6 +72,7 @@ function App() {
             <Route path="system-prompt-custom" element={<SystemPromptCustomTab />} />
             <Route path="chat" element={<ChatbotTab />} />
             <Route path="settings" element={<SettingsTab />} />
+            <Route path="instructions" element={<InstructionsTab />} />
           </Route>
         </Route>
 

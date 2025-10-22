@@ -39,6 +39,7 @@ const navigation = [
       { name: 'System prompt', href: '/admin/chatbot/system-prompt', icon: FileText },
       { name: 'System prompt custom', href: '/admin/chatbot/system-prompt-custom', icon: FileText },
       { name: 'Chat', href: '/admin/chatbot/chat', icon: MessageSquare },
+      { name: 'Instructions', href: '/admin/chatbot/instructions', icon: Settings },
       { name: 'Cài đặt', href: '/admin/chatbot/settings', icon: Settings },
     ]
   },
