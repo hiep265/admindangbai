@@ -22,6 +22,8 @@ import DeviceStorageTab from './pages/ChatbotPage/DeviceStorageTab';
 import ChatbotTab from './pages/ChatbotPage/ChatbotTab';
 import LinhKienManagementTabs from './pages/ChatbotPage/LinhKienManagementTabs';
 import SettingsTab from './pages/ChatbotPage/SettingsTab';
+import SystemPromptTab from './pages/ChatbotPage/SystemPromptTab';
+import SystemPromptCustomTab from './pages/ChatbotPage/SystemPromptCustomTab';
 
 function App() {
   const { isLoading } = useAuth();
@@ -65,6 +67,8 @@ function App() {
             <Route path="device-colors" element={<DeviceColorsTab />} />
             <Route path="device-storage" element={<DeviceStorageTab />} />
             <Route path="product-components" element={<LinhKienManagementTabs />} />
+            <Route path="system-prompt" element={<SystemPromptTab />} />
+            <Route path="system-prompt-custom" element={<SystemPromptCustomTab />} />
             <Route path="chat" element={<ChatbotTab />} />
             <Route path="settings" element={<SettingsTab />} />
           </Route>

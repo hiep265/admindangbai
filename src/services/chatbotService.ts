@@ -166,6 +166,61 @@ class ChatbotServiceClass {
   async getAvailablePlans(): Promise<ChatbotPlan[]> {
     return this.request<ChatbotPlan[]>('/plans');
   }
+
+  // Instructions/System Prompt
+  async getInstructions(): Promise<Array<{key: string, value: string}>> {
+    const CHATBOT_API_URL = import.meta.env.VITE_API_CHATBOT_URL;
+    const token = localStorage.getItem('auth_token');
+    
+    const response = await fetch(`${CHATBOT_API_URL}/instructions`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  async updateInstructions(instructions: Array<{key: string, value: string}>): Promise<Array<{key: string, value: string}>> {
+    const CHATBOT_API_URL = import.meta.env.VITE_API_CHATBOT_URL;
+    const token = localStorage.getItem('auth_token');
+    
+    // Wrap instructions in the expected format
+    const payload = {
+      instructions: instructions
+    };
+    
+    const response = await fetch(`${CHATBOT_API_URL}/instructions`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+    }
+
+    // The response should be the updated instructions array
+    const responseData = await response.json();
+    if (Array.isArray(responseData)) {
+      return responseData;
+    } else if (responseData.instructions && Array.isArray(responseData.instructions)) {
+      return responseData.instructions;
+    } else {
+      // Fallback: return the original instructions if response format is unexpected
+      return instructions;
+    }
+  }
 }
 
 export const chatbotService = new ChatbotServiceClass(); 

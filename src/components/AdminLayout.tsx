@@ -15,7 +15,8 @@ import {
   Layers,
   Settings,
   ChevronDown,
-  Shield
+  Shield,
+  FileText
 } from 'lucide-react';
 
 interface AdminLayoutProps {}
@@ -35,6 +36,8 @@ const navigation = [
       { name: 'Thiết bị - Dung lượng', href: '/admin/chatbot/device-storage', icon: Layers },
       { name: 'Linh kiện', href: '/admin/chatbot/product-components', icon: Package },
       { name: 'Thương hiệu', href: '/admin/service-management', icon: Palette },
+      { name: 'System prompt', href: '/admin/chatbot/system-prompt', icon: FileText },
+      { name: 'System prompt custom', href: '/admin/chatbot/system-prompt-custom', icon: FileText },
       { name: 'Chat', href: '/admin/chatbot/chat', icon: MessageSquare },
       { name: 'Cài đặt', href: '/admin/chatbot/settings', icon: Settings },
     ]
