@@ -265,7 +265,7 @@ const CreateUserForm: React.FC<{ onUserCreated: () => void }> = ({ onUserCreated
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

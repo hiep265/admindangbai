@@ -91,7 +91,8 @@ const DevicesTab: React.FC<DevicesTabProps> = () => {
 
       console.log('DevicesTab: API request params:', params.toString());
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user-devices/my-devices?${params.toString()}`, {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await fetch(`${API_BASE_URL}/api/v1/user-devices/my-devices?${params.toString()}`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const data = await response.json();

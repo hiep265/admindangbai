@@ -72,11 +72,11 @@ npm run dev
 
 ```bash
 # Lấy danh sách dịch vụ
-curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services" \
+curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/services" \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
 
 # Tạo dịch vụ mới
-curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services" \
+curl -X POST "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/services" \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -86,11 +86,11 @@ curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services"
   }'
 
 # Lấy danh sách gói cước
-curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/plans" \
+curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/plans" \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
 
 # Tạo gói cước mới
-curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/plans" \
+curl -X POST "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/plans" \
   -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{

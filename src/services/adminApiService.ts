@@ -9,7 +9,8 @@ import {
 } from '../types/admin';
 
 // const BASE_URL = 'http://192.168.1.161:8000/api/v1';
-const PUBLIC_URL = import.meta.env.VITE_API_BASE_URL + "/api/v1"
+const __API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+const PUBLIC_URL = `${__API_BASE}/api/v1`
 
 class AdminApiService {
   private async makeRequest(endpoint: string, options: RequestInit = {}) {

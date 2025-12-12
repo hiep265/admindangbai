@@ -1,7 +1,7 @@
 import { DeviceStorage } from '../types/deviceTypes';
 import { getAuthToken } from './apiService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 interface DeviceStoragesResponse {
   data: DeviceStorage[];

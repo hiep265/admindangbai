@@ -14,7 +14,7 @@ export const PromptManager: React.FC = () => {
   const getApiBaseUrl = () => {
     // This helper function gets the base URL from environment variables
     // Ensure you have VITE_API_BASE_URL set in your .env file
-    return import.meta.env.VITE_API_BASE_URL;
+    return import.meta.env.VITE_API_BASE_URL || '';
   };
 
   // --- REFACTORED: Reusable function to fetch the prompt ---

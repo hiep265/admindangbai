@@ -30,7 +30,7 @@ User phải có `role: 'admin'` để truy cập admin endpoints.
 TOKEN="your_token_here"
 
 # Test admin endpoint
-curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services" \
+curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/services" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -70,14 +70,14 @@ SELECT id, email, role, is_active FROM users WHERE email = 'your_email';
 3. **Test API đơn giản trước**:
    ```bash
    # Test endpoint không cần admin
-   curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/plans" \
+   curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/plans" \
      -H "Authorization: Bearer $TOKEN"
    ```
 
 4. **Test admin endpoint**:
    ```bash
    # Test admin endpoint
-   curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services" \
+   curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/services" \
      -H "Authorization: Bearer $TOKEN"
    ```
 

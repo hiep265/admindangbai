@@ -100,9 +100,10 @@ const DeviceFormModal: React.FC<DeviceFormModalProps> = ({ isOpen, onClose, onSa
           const token = localStorage.getItem('auth_token');
           const headers = { 'Authorization': `Bearer ${token}` };
 
+          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
           const [colorsRes, storagesRes] = await Promise.all([
-            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/device-infos/${deviceId}/colors`, { headers }),
-            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/device-infos/${deviceId}/storages`, { headers }),
+            fetch(`${API_BASE_URL}/api/v1/device-infos/${deviceId}/colors`, { headers }),
+            fetch(`${API_BASE_URL}/api/v1/device-infos/${deviceId}/storages`, { headers }),
           ]);
 
           const colorsData = await colorsRes.json();

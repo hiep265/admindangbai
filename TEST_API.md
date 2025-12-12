@@ -11,7 +11,7 @@ python main.py
 ### 2. Lấy token admin
 ```bash
 # Đăng nhập để lấy token
-curl -X POST "http://localhost:8000/api/v1/auth/login" \
+curl -X POST "https://autodangbai.doiquanai.vn/api/v1/auth/login" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d "username=admin@example.com&password=password"
 ```
@@ -21,11 +21,11 @@ curl -X POST "http://localhost:8000/api/v1/auth/login" \
 #### Test Services
 ```bash
 # Lấy danh sách services
-curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services" \
+curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/services" \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # Tạo service mới
-curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services" \
+curl -X POST "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/services" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -38,11 +38,11 @@ curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/services"
 #### Test Plans
 ```bash
 # Lấy danh sách plans
-curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/plans" \
+curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/plans" \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # Tạo plan mới
-curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/plans" \
+curl -X POST "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/plans" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -56,11 +56,11 @@ curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/plans" \
 #### Test Subscriptions
 ```bash
 # Lấy danh sách subscriptions
-curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/subscriptions" \
+curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/subscriptions" \
   -H "Authorization: Bearer YOUR_TOKEN"
 
 # Tạo subscription mới
-curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/subscriptions" \
+curl -X POST "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/subscriptions" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -72,7 +72,7 @@ curl -X POST "http://localhost:8000/api/v1/chatbot-subscriptions/admin/subscript
 #### Test Permissions
 ```bash
 # Lấy danh sách permissions
-curl -X GET "http://localhost:8000/api/v1/chatbot-subscriptions/admin/permissions" \
+curl -X GET "https://autodangbai.doiquanai.vn/api/v1/chatbot-subscriptions/admin/permissions" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
